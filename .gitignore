@@ -1,0 +1,11 @@
+# Xcode
+DressageCaller.xcodeproj/xcuserdata/
+DressageCaller.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcworkspace/xcuserdata/
+
+# SPM
+.build/
+.swiftpm/
+
+# macOS
+.DS_Store

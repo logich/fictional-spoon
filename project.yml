@@ -1,0 +1,26 @@
+name: DressageCaller
+options:
+  bundleIdPrefix: com.dressagecaller
+  deploymentTarget:
+    iOS: "18.0"
+  xcodeVersion: "16.0"
+
+targets:
+  DressageCaller:
+    type: application
+    platform: iOS
+    sources:
+      - path: DressageCaller
+    info:
+      path: DressageCaller/Info.plist
+      properties:
+        CFBundleDisplayName: Dressage Caller
+        UILaunchScreen: {}
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dressagecaller.app
+        SWIFT_VERSION: "6.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+    dependencies:
+      - sdk: CoreLocation.framework
+      - sdk: AVFoundation.framework
