@@ -8,14 +8,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-// ============================================================
-// TODO: Replace this UUID with the one defined in your iOS app.
-// It must match exactly — this is how the app identifies which
-// beacon region it's in.
-// ============================================================
+// Proximity UUID — matches ArenaConfiguration.prototype in the iOS app
+// and BEACON_UUID in esp32/ibeacon/ibeacon.ino.
+// UUID: B9407F30-F5F8-466E-AFF9-25556B57FE6D
 static const uint8_t BEACON_UUID[16] = {
-    0xE2, 0xC5, 0x6D, 0xB5, 0xDF, 0xFB, 0x48, 0xD2,
-    0xB0, 0x60, 0xD0, 0xF5, 0xA7, 0x10, 0x96, 0xE0,
+    0xB9, 0x40, 0x7F, 0x30,
+    0xF5, 0xF8,
+    0x46, 0x6E,
+    0xAF, 0xF9,
+    0x25, 0x55, 0x6B, 0x57, 0xFE, 0x6D,
 };
 
 // Measured RSSI at 1 metre — calibration value embedded in each packet.
@@ -27,12 +28,13 @@ static const uint8_t BEACON_UUID[16] = {
 //   27 Manufacturer Specific AD  (Apple header 4B + type 2B + UUID 16B + major 2B + minor 2B + power 1B)
 #define ADV_DATA_LEN 30
 
-// Standard dressage arena letters in alphabetical order.
-// Minor value = index + 1 (A=1, B=2, C=3 …).
-// Letters D, G, I, J, L, N, O, Q, T, U, W, Y are not used in dressage.
-static const char* ARENA_LETTERS[] = {
-    "A", "B", "C", "E", "F", "H", "K", "M", "P", "R", "S", "V", "X",
-};
+// Letters and their minor values — must match ArenaConfiguration.prototype
+// in the iOS app and the BEACON_MINOR mapping in esp32/ibeacon/ibeacon.ino.
+//   minor 0 = A   (bottom center)
+//   minor 1 = E   (left wall, halfway)
+//   minor 2 = C   (top center)
+//   minor 3 = B   (right wall, halfway)
+static const char* ARENA_LETTERS[] = { "A", "E", "C", "B" };
 #define LETTER_COUNT ((uint8_t)(sizeof(ARENA_LETTERS) / sizeof(ARENA_LETTERS[0])))
 
 typedef struct {
@@ -88,8 +90,8 @@ static void build_adv_data(uint8_t buf[ADV_DATA_LEN], const IBeaconApp* app) {
     buf[i++] = (uint8_t)(app->major >> 8);
     buf[i++] = (uint8_t)(app->major & 0xFF);
 
-    // Minor = letter index + 1 (big-endian)
-    uint16_t minor = (uint16_t)(app->letter_idx + 1);
+    // Minor = letter index (0=A, 1=E, 2=C, 3=B), big-endian
+    uint16_t minor = (uint16_t)app->letter_idx;
     buf[i++] = (uint8_t)(minor >> 8);
     buf[i++] = (uint8_t)(minor & 0xFF);
 
@@ -160,7 +162,7 @@ static void draw_cb(Canvas* canvas, void* ctx) {
 
     // Minor — navigated with Left / Right
     snprintf(buf, sizeof(buf), "Letter: %s (minor=%u)",
-             ARENA_LETTERS[app->letter_idx], app->letter_idx + 1);
+             ARENA_LETTERS[app->letter_idx], app->letter_idx);
     canvas_draw_str(canvas, 0, 39, buf);
 
     // Separator
