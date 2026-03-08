@@ -1,0 +1,11 @@
+App(
+    appid="ibeacon_emulator",
+    name="iBeacon Emulator",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="ibeacon_app_main",
+    requires=["gui", "bt"],
+    stack_size=2 * 1024,
+    fap_category="Bluetooth",
+    fap_version=(1, 0),
+    fap_description="Emulate an Apple iBeacon for dressage arena letter positioning",
+)
