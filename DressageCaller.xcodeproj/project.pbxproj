@@ -18,11 +18,13 @@
 		3A74A43410E64C65E8BA6FFB /* BeaconCalibration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7759C99D81F9C5639FFEEAF1 /* BeaconCalibration.swift */; };
 		4A0BF43768C86C2984E6342C /* CalibrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E31A396D644792B228AFDFEA /* CalibrationView.swift */; };
 		4B62154CE2A73B60981BDE20 /* AnnouncementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E93017EC21281115D229CA /* AnnouncementService.swift */; };
+		4C172A71A032B61061EC8626 /* VoicePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43ED962F168FCE0D0A04B1FB /* VoicePickerView.swift */; };
 		67A9E30F5CB4C232C3526E83 /* RideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12805E1DA9E3EA106BCF1426 /* RideView.swift */; };
 		6CABFDF3518582375508167E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F0656BFBCFA96476192097B2 /* CoreLocation.framework */; };
 		8516CEFC1EDD1BE7DE297A4A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0F003CBB03822AC5001217 /* HomeView.swift */; };
 		908E6F32609D05F53F78610F /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47859CA9FFEBBA6EA12166FF /* ShareSheet.swift */; };
 		956081D6CC1B12876CF97D7B /* MotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA71F62B382B55B4DC9F1DA3 /* MotionService.swift */; };
+		96E3D0288D2C9FD774FDC7B3 /* VoicePreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0B251ACB418FEB6A9501D4 /* VoicePreference.swift */; };
 		A526F9F72AC405BA9F555E48 /* BeaconRangingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF1B672D0094BD179066F7B /* BeaconRangingService.swift */; };
 		B59C1489C880B75DC829706B /* DressageCallerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7B86A16919F52E3FD2883 /* DressageCallerApp.swift */; };
 		C7200F23E7E36E6A7810779B /* CalibrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503496F7DC5565EDE4C04578 /* CalibrationViewModel.swift */; };
@@ -36,6 +38,7 @@
 /* Begin PBXFileReference section */
 		09A562305139E377DFDC4037 /* ArenaConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArenaConfiguration.swift; sourceTree = "<group>"; };
 		12805E1DA9E3EA106BCF1426 /* RideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideView.swift; sourceTree = "<group>"; };
+		43ED962F168FCE0D0A04B1FB /* VoicePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoicePickerView.swift; sourceTree = "<group>"; };
 		47859CA9FFEBBA6EA12166FF /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 		4FB371BB02AF8E1067525C8A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		503496F7DC5565EDE4C04578 /* CalibrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalibrationViewModel.swift; sourceTree = "<group>"; };
@@ -53,6 +56,7 @@
 		B857F4310440A6812FF8CB81 /* ArenaLetter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArenaLetter.swift; sourceTree = "<group>"; };
 		C3E93017EC21281115D229CA /* AnnouncementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementService.swift; sourceTree = "<group>"; };
 		CD0F003CBB03822AC5001217 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		CF0B251ACB418FEB6A9501D4 /* VoicePreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoicePreference.swift; sourceTree = "<group>"; };
 		DBCE5557D84EC7F9A6E660B5 /* RideSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideSessionController.swift; sourceTree = "<group>"; };
 		DD7999C6B7232FBE3CAC3D8C /* SampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleTests.swift; sourceTree = "<group>"; };
 		DDF1B672D0094BD179066F7B /* BeaconRangingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconRangingService.swift; sourceTree = "<group>"; };
@@ -104,6 +108,7 @@
 				9DF03A80925E254CCD96725C /* PositionEngine.swift */,
 				DBCE5557D84EC7F9A6E660B5 /* RideSessionController.swift */,
 				A8E9D647AF1A818228457D04 /* SessionLogger.swift */,
+				CF0B251ACB418FEB6A9501D4 /* VoicePreference.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -170,6 +175,7 @@
 				12805E1DA9E3EA106BCF1426 /* RideView.swift */,
 				47859CA9FFEBBA6EA12166FF /* ShareSheet.swift */,
 				7471A38811354C52B48F12A5 /* TestSelectionView.swift */,
+				43ED962F168FCE0D0A04B1FB /* VoicePickerView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -255,6 +261,8 @@
 				D36F3534C59ED5CF71F94E38 /* SessionLogger.swift in Sources */,
 				908E6F32609D05F53F78610F /* ShareSheet.swift in Sources */,
 				1B1CA85C6136F6E6BAA4419F /* TestSelectionView.swift in Sources */,
+				4C172A71A032B61061EC8626 /* VoicePickerView.swift in Sources */,
+				96E3D0288D2C9FD774FDC7B3 /* VoicePreference.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

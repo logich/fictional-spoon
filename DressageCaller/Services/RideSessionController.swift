@@ -78,7 +78,7 @@ final class RideSessionController {
 
     private func speak(_ text: String) {
         let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        utterance.voice = VoicePreference.resolvedVoice()
         utterance.rate = AVSpeechUtteranceDefaultSpeechRate
         utterance.volume = 1.0
         synthesizer.speak(utterance)

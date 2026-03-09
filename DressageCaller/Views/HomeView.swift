@@ -1,3 +1,4 @@
+import AVFoundation
 import SwiftUI
 
 /// Landing screen for configuring arena, horse, and test before starting a ride.
@@ -8,6 +9,16 @@ struct HomeView: View {
     @State private var calibration: BeaconCalibration = .uncalibrated
     @State private var navigateToRide = false
     @State private var navigateToCalibration = false
+    @State private var voiceRefreshToken = UUID()  // forces voice label to update after picker dismisses
+
+    private var voiceLabel: String {
+        _ = voiceRefreshToken
+        if let id = VoicePreference.savedIdentifier,
+           let voice = AVSpeechSynthesisVoice(identifier: id) {
+            return "\(voice.name) (\(voice.quality.label))"
+        }
+        return "Automatic"
+    }
 
     private var configuration: ArenaConfiguration {
         ArenaConfiguration(
@@ -62,6 +73,21 @@ struct HomeView: View {
                     TextField("Horse name", text: $horseName)
                         .textContentType(.name)
                         .autocorrectionDisabled()
+                }
+
+                // Audio
+                Section("Audio") {
+                    NavigationLink {
+                        VoicePickerView()
+                            .onDisappear { voiceRefreshToken = UUID() }
+                    } label: {
+                        HStack {
+                            Text("Caller Voice")
+                            Spacer()
+                            Text(voiceLabel)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
 
                 // Test selection

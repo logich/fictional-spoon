@@ -42,7 +42,7 @@ final class AnnouncementService: NSObject {
     /// Speak the given text.
     func announce(_ text: String) {
         let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        utterance.voice = VoicePreference.resolvedVoice()
         utterance.rate = AVSpeechUtteranceDefaultSpeechRate
         utterance.pitchMultiplier = 1.0
         utterance.volume = 1.0
