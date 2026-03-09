@@ -64,12 +64,28 @@ struct ArenaView: View {
                         drawArrowhead(context: &context, at: destScreen, from: originScreen, color: gaitColor)
 
                     case .circle(let diameter):
-                        let radius = (diameter / 2) * scale
+                        // The named letter is the tangent point on the track.
+                        // Offset the circle center inward (toward arena center) by the radius
+                        // so the circle is tangential to the letter position.
+                        let radiusMeters = diameter / 2
+                        let arenaCenter = CGPoint(
+                            x: configuration.arenaSize.width / 2,
+                            y: configuration.arenaSize.length / 2
+                        )
+                        let dx = arenaCenter.x - origin.x
+                        let dy = arenaCenter.y - origin.y
+                        let dist = max((dx * dx + dy * dy).squareRoot(), 0.001)
+                        let centerArena = CGPoint(
+                            x: origin.x + (dx / dist) * radiusMeters,
+                            y: origin.y + (dy / dist) * radiusMeters
+                        )
+                        let centerScreen = toScreen(centerArena)
+                        let screenRadius = radiusMeters * scale
                         let circleRect = CGRect(
-                            x: originScreen.x - radius,
-                            y: originScreen.y - radius,
-                            width: radius * 2,
-                            height: radius * 2
+                            x: centerScreen.x - screenRadius,
+                            y: centerScreen.y - screenRadius,
+                            width: screenRadius * 2,
+                            height: screenRadius * 2
                         )
                         context.stroke(Path(ellipseIn: circleRect),
                                        with: .color(gaitColor.opacity(0.8)), style: pathStyle)

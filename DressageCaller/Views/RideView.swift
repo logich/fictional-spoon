@@ -227,7 +227,7 @@ struct RideView: View {
                     .controlSize(.mini)
                 }
             }
-            ProgressView(value: Double(index), total: Double(total))
+            ProgressView(value: sc.isFinished ? Double(total) : Double(index), total: Double(total))
                 .tint(.blue)
         }
     }
