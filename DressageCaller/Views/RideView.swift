@@ -167,15 +167,39 @@ struct RideView: View {
         let total = test.movements.count
         let movement = index < total ? test.movements[index] : nil
 
-        return VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                if sc.isFinished {
+        return VStack(alignment: .leading, spacing: 6) {
+            if sc.isFinished {
+                HStack {
                     Text("Test complete")
                         .font(.caption.bold())
                         .foregroundStyle(.green)
-                } else if let m = movement {
-                    Text("\(index + 1)/\(total) — \(m.location.label)")
-                        .font(.caption.bold())
+                    Spacer()
+                }
+            } else if let m = movement {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        // Movement number, letter, and gait badge
+                        HStack(spacing: 6) {
+                            Text("\(index + 1)/\(total)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Text(m.location.label)
+                                .font(.caption.bold())
+                            if let gait = m.expectedGait {
+                                Text(gait.rawValue.capitalized)
+                                    .font(.caption2)
+                                    .padding(.horizontal, 5)
+                                    .padding(.vertical, 2)
+                                    .background(gaitColor(gait).opacity(0.15), in: Capsule())
+                                    .foregroundStyle(gaitColor(gait))
+                            }
+                        }
+                        // Directive text
+                        Text(m.directiveText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
                     Spacer()
                     Button {
                         sc.skipMovement()
@@ -189,6 +213,15 @@ struct RideView: View {
             }
             ProgressView(value: Double(index), total: Double(total))
                 .tint(.blue)
+        }
+    }
+
+    private func gaitColor(_ gait: Gait) -> Color {
+        switch gait {
+        case .halt:    return .primary
+        case .walk:    return .blue
+        case .trot:    return .orange
+        case .canter:  return .red
         }
     }
 
