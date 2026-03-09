@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Active ride screen — arena diagram, beacon status, and ride controls.
 struct RideView: View {
@@ -31,6 +32,11 @@ struct RideView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // Background location auth warning
+            if beaconService.authorizationStatus == .authorizedWhenInUse {
+                authorizationBanner
+            }
+
             // Status bar
             statusBar
                 .padding(.horizontal)
@@ -97,7 +103,7 @@ struct RideView: View {
             positionEngine.update(from: newBeacons, motionState: motionService.motionState)
             let state = positionEngine.riderState
             if let sc = sessionController {
-                sc.checkAndAnnounce(riderState: state)
+                sc.checkAndAnnounce(riderState: state, velocity: positionEngine.velocity)
             } else {
                 announcementService.checkAndAnnounce(state: state)
             }
@@ -111,10 +117,12 @@ struct RideView: View {
             }
         }
         .onAppear {
+            UIApplication.shared.isIdleTimerDisabled = true
             beaconService.requestAuthorization()
             motionService.start()
         }
         .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
             beaconService.stopRanging()
             motionService.stop()
             sessionLogger.stop()
@@ -125,6 +133,29 @@ struct RideView: View {
                 ShareSheet(items: [url])
             }
         }
+    }
+
+    // MARK: - Auth banner
+
+    private var authorizationBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "location.slash.fill")
+                .foregroundStyle(.orange)
+            Text("Background location access required for ranging when screen is locked.")
+                .font(.caption)
+                .foregroundStyle(.primary)
+            Spacer()
+            Button("Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            .font(.caption.bold())
+            .foregroundStyle(.orange)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(.orange.opacity(0.12))
     }
 
     // MARK: - Status bar

@@ -40,6 +40,10 @@ final class BeaconRangingService: NSObject {
     private let locationManager = CLLocationManager()
     private var beaconConstraint: CLBeaconIdentityConstraint?
     private var beaconRegion: CLBeaconRegion?
+    private var evictionTimer: Timer?
+
+    /// Beacons not seen within this window are removed from detectedBeacons.
+    private let staleThreshold: TimeInterval = 3.0
 
     init(configuration: ArenaConfiguration = .prototype) {
         self.configuration = configuration
@@ -72,6 +76,10 @@ final class BeaconRangingService: NSObject {
         locationManager.startRangingBeacons(satisfying: constraint)
         isRanging = true
         print("[Beacon] Ranging started")
+
+        evictionTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in self?.evictStaleBeacons() }
+        }
     }
 
     func stopRanging() {
@@ -82,8 +90,15 @@ final class BeaconRangingService: NSObject {
         if let region = beaconRegion {
             locationManager.stopMonitoring(for: region)
         }
+        evictionTimer?.invalidate()
+        evictionTimer = nil
         isRanging = false
         detectedBeacons = []
+    }
+
+    private func evictStaleBeacons() {
+        let cutoff = Date().addingTimeInterval(-staleThreshold)
+        detectedBeacons = detectedBeacons.filter { $0.lastSeen >= cutoff }
     }
 
 #else

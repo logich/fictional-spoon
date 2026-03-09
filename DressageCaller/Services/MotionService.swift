@@ -49,7 +49,8 @@ final class MotionService {
         motionManager.accelerometerUpdateInterval = 0.1  // 10 Hz
         motionManager.startAccelerometerUpdates(to: .main) { [weak self] data, _ in
             guard let self, let data else { return }
-            Task { @MainActor in
+            // Already delivered on .main — no Task hop needed.
+            MainActor.assumeIsolated {
                 self.processAcceleration(data.acceleration)
             }
         }
