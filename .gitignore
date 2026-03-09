@@ -8,5 +8,9 @@ build/
 .build/
 .swiftpm/
 
+# Flipper build artifacts
+flipper_ibeacon/.vscode/
+flipper_ibeacon/dist/
+
 # macOS
 .DS_Store
