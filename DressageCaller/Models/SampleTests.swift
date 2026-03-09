@@ -17,119 +17,136 @@ enum SampleTests {
                 location: .letter(.A),
                 spokenText: "A, Enter working trot rising",
                 directiveText: "Enter working trot rising",
-                expectedGait: .trot
+                expectedGait: .trot,
+                path: .line(to: .letter(.X))
             ),
             Movement(
                 sequence: 2,
                 location: .letter(.X),
                 spokenText: "X, Halt, salute. Proceed working trot rising",
                 directiveText: "Halt, salute. Proceed working trot rising",
-                expectedGait: .trot
+                expectedGait: .trot,
+                path: .line(to: .letter(.C))
             ),
             Movement(
                 sequence: 3,
                 location: .letter(.C),
                 spokenText: "C, Track left",
                 directiveText: "Track left",
-                expectedGait: .trot
+                expectedGait: .trot,
+                path: .track(waypoints: [.H, .E])
             ),
             Movement(
                 sequence: 4,
                 location: .letter(.E),
                 spokenText: "E, Circle left 20 meters",
                 directiveText: "Circle left 20m",
-                expectedGait: .trot
+                expectedGait: .trot,
+                path: .circle(diameterMeters: 20)
             ),
             Movement(
                 sequence: 5,
                 location: .letter(.A),
                 spokenText: "A, Circle left 20 meters, developing left lead canter in first quarter of circle",
                 directiveText: "Circle left 20m developing left lead canter in first quarter of circle",
-                expectedGait: .canter
+                expectedGait: .canter,
+                path: .circle(diameterMeters: 20)
             ),
             Movement(
                 sequence: 6,
                 location: .letter(.A),
                 spokenText: "A, Working canter",
                 directiveText: "A-F-B Working canter",
-                expectedGait: .canter
+                expectedGait: .canter,
+                path: .track(waypoints: [.F, .B])
             ),
             Movement(
                 sequence: 7,
                 location: .between(.B, .M),
                 spokenText: "Between B and M, Working trot rising",
                 directiveText: "Between B & M Working trot",
-                expectedGait: .trot
+                expectedGait: .trot,
+                path: .track(waypoints: [.M, .C, .H, .E])
             ),
             Movement(
                 sequence: 8,
                 location: .between(.C, .H),
                 spokenText: "Between C and H, Medium walk",
                 directiveText: "Between C & H Medium walk",
-                expectedGait: .walk
+                expectedGait: .walk,
+                path: .track(waypoints: [.H, .E])
             ),
             Movement(
                 sequence: 9,
                 location: .letter(.E),
                 spokenText: "E, Change rein, free walk",
                 directiveText: "E-F Change rein, free walk",
-                expectedGait: .walk
+                expectedGait: .walk,
+                path: .line(to: .letter(.F))
             ),
             Movement(
                 sequence: 10,
                 location: .letter(.F),
                 spokenText: "F, Medium walk",
                 directiveText: "Medium walk",
-                expectedGait: .walk
+                expectedGait: .walk,
+                path: .track(waypoints: [.A])
             ),
             Movement(
                 sequence: 11,
                 location: .letter(.A),
                 spokenText: "A, Working trot rising",
                 directiveText: "Working trot rising",
-                expectedGait: .trot
+                expectedGait: .trot,
+                path: .track(waypoints: [.K, .E])
             ),
             Movement(
                 sequence: 12,
                 location: .letter(.E),
                 spokenText: "E, Circle right 20 meters",
                 directiveText: "Circle right 20m",
-                expectedGait: .trot
+                expectedGait: .trot,
+                path: .circle(diameterMeters: 20)
             ),
             Movement(
                 sequence: 13,
                 location: .letter(.C),
                 spokenText: "C, Circle right 20 meters, developing right lead canter in first quarter of circle",
                 directiveText: "Circle right 20m developing right lead canter in first quarter of circle",
-                expectedGait: .canter
+                expectedGait: .canter,
+                path: .circle(diameterMeters: 20)
             ),
             Movement(
                 sequence: 14,
                 location: .letter(.C),
                 spokenText: "C, Working canter",
                 directiveText: "C-M-B Working canter",
-                expectedGait: .canter
+                expectedGait: .canter,
+                path: .track(waypoints: [.M, .B])
             ),
             Movement(
                 sequence: 15,
                 location: .between(.B, .F),
                 spokenText: "Between B and F, Working trot rising",
                 directiveText: "Between B & F Working trot",
-                expectedGait: .trot
+                expectedGait: .trot,
+                path: .track(waypoints: [.F, .A])
             ),
             Movement(
                 sequence: 16,
                 location: .letter(.A),
                 spokenText: "A, Down centerline",
                 directiveText: "Down centerline",
-                expectedGait: .trot
+                expectedGait: .trot,
+                path: .line(to: .letter(.X))
             ),
             Movement(
                 sequence: 17,
                 location: .letter(.X),
                 spokenText: "X, Halt, salute",
                 directiveText: "Halt, salute",
-                expectedGait: .halt
+                expectedGait: .halt,
+                path: nil
             ),
         ]
     )

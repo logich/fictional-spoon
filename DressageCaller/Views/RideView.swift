@@ -55,7 +55,10 @@ struct RideView: View {
             ArenaView(
                 configuration: configuration,
                 riderState: positionEngine.riderState,
-                detectedBeacons: beaconService.detectedBeacons
+                detectedBeacons: beaconService.detectedBeacons,
+                currentMovement: sessionController.flatMap { sc in
+                    sc.isFinished ? nil : sc.test.movements[safe: sc.currentMovementIndex]
+                }
             )
             .frame(maxHeight: .infinity)
 

@@ -46,6 +46,19 @@ enum MovementLocation: Sendable, Equatable {
     }
 }
 
+// MARK: - PathShape
+
+/// The geometric shape the rider traces while performing a movement.
+/// Used to draw the expected path on the arena canvas.
+enum PathShape: Sendable {
+    /// Straight line from the movement trigger location to a destination.
+    case line(to: MovementLocation)
+    /// Full circle centered at the movement trigger location.
+    case circle(diameterMeters: Double)
+    /// Follow arena letters in order from the trigger location.
+    case track(waypoints: [ArenaLetter])
+}
+
 // MARK: - Movement
 
 /// A single step in a dressage test sequence.
@@ -61,6 +74,8 @@ struct Movement: Identifiable, Sendable {
     let directiveText: String
     /// The gait the rider should be in after completing this movement.
     let expectedGait: Gait?
+    /// The path the rider traces for this movement (for canvas visualization).
+    let path: PathShape?
 
     init(
         id: UUID = UUID(),
@@ -68,7 +83,8 @@ struct Movement: Identifiable, Sendable {
         location: MovementLocation,
         spokenText: String,
         directiveText: String,
-        expectedGait: Gait? = nil
+        expectedGait: Gait? = nil,
+        path: PathShape? = nil
     ) {
         self.id = id
         self.sequence = sequence
@@ -76,6 +92,7 @@ struct Movement: Identifiable, Sendable {
         self.spokenText = spokenText
         self.directiveText = directiveText
         self.expectedGait = expectedGait
+        self.path = path
     }
 }
 
