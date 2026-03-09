@@ -20,17 +20,23 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Dressage Caller uses Bluetooth to detect arena beacons and track your position during a ride.</string>
+	<string>Dressage Caller uses Bluetooth to detect iBeacon positioning markers placed around the arena.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Dressage Caller needs continuous location access to track your position throughout your ride, even when the screen is locked or the app is in the background.</string>
+	<string>Dressage Caller needs continuous location access to track your position in the arena during a ride.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Dressage Caller tracks your position in the arena to automatically announce test movements at the correct time.</string>
+	<string>Dressage Caller uses your location to range nearby iBeacon positioning markers.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Dressage Caller uses motion data to stabilise position tracking and detect your gait.</string>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>location</string>
 		<string>bluetooth-central</string>
+		<string>location</string>
 	</array>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 	<key>UILaunchScreen</key>
 	<dict/>
 </dict>

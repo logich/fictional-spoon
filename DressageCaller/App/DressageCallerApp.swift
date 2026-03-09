@@ -4,7 +4,7 @@ import SwiftUI
 struct DressageCallerApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeView()
         }
     }
 }

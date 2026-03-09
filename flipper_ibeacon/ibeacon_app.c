@@ -115,8 +115,13 @@ static bool beacon_start(IBeaconApp* app) {
         .max_adv_interval_ms = 200,
         .adv_channel_map     = GapAdvChannelMapAll,
         .adv_power_level     = GapAdvPowerLevel_0dBm,
-        .address_type        = GapAddressTypePublic,
+        .address_type        = GapAddressTypeRandom,
     };
+    // The extra beacon needs a valid MAC address — all-zeros is invalid and
+    // iOS silently ignores advertisements from it.  Generate a random static
+    // address (top two bits of the last byte set to 0b11 per BLE spec).
+    furi_hal_random_fill_buf(cfg.address, sizeof(cfg.address));
+    cfg.address[5] |= 0xC0; // mark as random static address
 
     if(!furi_hal_bt_extra_beacon_set_config(&cfg)) return false;
     if(!furi_hal_bt_extra_beacon_set_data(adv_data, ADV_DATA_LEN)) return false;

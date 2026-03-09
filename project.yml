@@ -16,11 +16,31 @@ targets:
       properties:
         CFBundleDisplayName: Dressage Caller
         UILaunchScreen: {}
+        NSBluetoothAlwaysUsageDescription: Dressage Caller uses Bluetooth to detect iBeacon positioning markers placed around the arena.
+        NSLocationAlwaysAndWhenInUseUsageDescription: Dressage Caller needs continuous location access to track your position in the arena during a ride.
+        NSLocationWhenInUseUsageDescription: Dressage Caller uses your location to range nearby iBeacon positioning markers.
+        NSMotionUsageDescription: Dressage Caller uses motion data to stabilise position tracking and detect your gait.
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+        UIBackgroundModes:
+          - bluetooth-central
+          - location
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.dressagecaller.app
         SWIFT_VERSION: "6.0"
         TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: GKLUN877QD
     dependencies:
       - sdk: CoreLocation.framework
       - sdk: AVFoundation.framework
+      - sdk: CoreMotion.framework
+
+schemes:
+  DressageCaller:
+    build:
+      targets:
+        DressageCaller: all
+    run:
+      config: Debug

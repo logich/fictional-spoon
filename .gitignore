@@ -3,7 +3,8 @@ DressageCaller.xcodeproj/xcuserdata/
 DressageCaller.xcodeproj/project.xcworkspace/xcuserdata/
 *.xcworkspace/xcuserdata/
 
-# SPM
+# Build output
+build/
 .build/
 .swiftpm/
 
