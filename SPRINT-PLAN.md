@@ -133,6 +133,7 @@
 | Post-ride summary: duration, gait time breakdown, movements called count | UX-FLOW §10 | M |
 | Simulator: mock follows `DressageTest.movements` in sequence (not perimeter loop) | REVIEW #19 P3 | S |
 | Accessibility: arena canvas labels, control button labels, beacon status accessibility | REVIEW #15 P2 | M |
+| App icon redesign — current placeholder insufficient for App Store | Design | M |
 
 **Dependencies:**
 - Arena profiles require `BeaconCalibration` Codable + persisted (Sprint 2)

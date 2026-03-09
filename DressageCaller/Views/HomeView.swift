@@ -6,7 +6,7 @@ struct HomeView: View {
     @State private var arenaSize: ArenaSize = .standard
     @State private var horseName: String = ""
     @State private var selectedTest: DressageTest? = SampleTests.trainingLevel1
-    @State private var calibration: BeaconCalibration = .uncalibrated
+    @State private var calibration: BeaconCalibration = .load()
     @State private var navigateToRide = false
     @State private var navigateToCalibration = false
     @State private var voiceRefreshToken = UUID()  // forces voice label to update after picker dismisses
@@ -48,6 +48,7 @@ struct HomeView: View {
                     NavigationLink {
                         CalibrationView(configuration: configuration) { result in
                             calibration = result
+                            result.save()
                         }
                     } label: {
                         HStack {
@@ -125,12 +126,12 @@ struct HomeView: View {
             }
             .navigationTitle("Dressage Caller")
             .navigationDestination(isPresented: $navigateToRide) {
-                RideView(
+                RideView(session: RideSession(
                     configuration: configuration,
                     calibration: calibration,
                     test: selectedTest,
                     horseName: horseName.isEmpty ? nil : horseName
-                )
+                ))
             }
         }
     }

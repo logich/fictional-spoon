@@ -3,7 +3,7 @@ import Foundation
 // MARK: - Supporting types
 
 /// Recognized dressage organizations.
-enum DressageOrganization: String, Sendable, Codable {
+enum DressageOrganization: String, Sendable, Codable, CaseIterable {
     case usdf            // USDF Traditional Dressage
     case usef            // USEF
     case fei             // FEI International
@@ -11,7 +11,8 @@ enum DressageOrganization: String, Sendable, Codable {
 }
 
 /// Gaits a rider may be performing.
-enum Gait: String, Sendable, Codable, CaseIterable {
+enum Gait: String, Sendable, Codable, CaseIterable, Identifiable {
+    var id: String { rawValue }
     case halt
     case walk
     case trot
@@ -19,7 +20,7 @@ enum Gait: String, Sendable, Codable, CaseIterable {
 }
 
 /// Where a movement is triggered — either at a specific letter or between two letters.
-enum MovementLocation: Sendable, Equatable {
+enum MovementLocation: Sendable, Equatable, Codable {
     case letter(ArenaLetter)
     case between(ArenaLetter, ArenaLetter)
 
@@ -50,7 +51,7 @@ enum MovementLocation: Sendable, Equatable {
 
 /// The geometric shape the rider traces while performing a movement.
 /// Used to draw the expected path on the arena canvas.
-enum PathShape: Sendable {
+enum PathShape: Sendable, Codable {
     /// Straight line from the movement trigger location to a destination.
     case line(to: MovementLocation)
     /// Full circle centered at the movement trigger location.
@@ -62,7 +63,7 @@ enum PathShape: Sendable {
 // MARK: - Movement
 
 /// A single step in a dressage test sequence.
-struct Movement: Identifiable, Sendable {
+struct Movement: Identifiable, Sendable, Codable {
     let id: UUID
     /// 1-based position in the test.
     let sequence: Int
@@ -99,7 +100,7 @@ struct Movement: Identifiable, Sendable {
 // MARK: - DressageTest
 
 /// A dressage test definition — an ordered sequence of movements.
-struct DressageTest: Identifiable, Sendable {
+struct DressageTest: Identifiable, Sendable, Codable {
     let id: UUID
     let name: String
     let organization: DressageOrganization

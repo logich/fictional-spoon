@@ -1,7 +1,7 @@
 import Foundation
 
 /// Arena size variants.
-enum ArenaSize: String, Sendable {
+enum ArenaSize: String, Sendable, Codable, CaseIterable {
     case small    // 20×40m
     case standard // 20×60m
 

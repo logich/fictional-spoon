@@ -97,7 +97,7 @@ final class CalibrationViewModel {
         stopTimer()
         guard !rssiSamples.isEmpty else { return }
         let average = Double(rssiSamples.reduce(0, +)) / Double(rssiSamples.count)
-        calibration.readings[letter.rawValue] = average
+        calibration.readings[letter] = average
         phase = .recorded
     }
 

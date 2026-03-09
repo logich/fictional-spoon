@@ -4,31 +4,16 @@ import UIKit
 /// Active ride screen — arena diagram, beacon status, and ride controls.
 struct RideView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var beaconService: BeaconRangingService
-    @State private var positionEngine: PositionEngine
-    @State private var motionService = MotionService()
-    @State private var announcementService = AnnouncementService()
-    @State private var sessionController: RideSessionController?
-    @State private var sessionLogger = SessionLogger()
+    let session: RideSession
+
     @State private var showDebugPanel = false
-    @State private var showShareSheet = false
+    @State private var shareURL: URL? = nil
 
-    let configuration: ArenaConfiguration
-    let calibration: BeaconCalibration
-    let test: DressageTest?
-    let horseName: String?
-
-    init(configuration: ArenaConfiguration, calibration: BeaconCalibration = .uncalibrated, test: DressageTest? = nil, horseName: String? = nil) {
-        self.configuration = configuration
-        self.calibration = calibration
-        self.test = test
-        self.horseName = horseName
-        self._beaconService = State(initialValue: BeaconRangingService(configuration: configuration))
-        self._positionEngine = State(initialValue: PositionEngine(configuration: configuration, calibration: calibration))
-        if let test {
-            self._sessionController = State(initialValue: RideSessionController(test: test, configuration: configuration))
-        }
-    }
+    private var beaconService: BeaconRangingService { session.beaconService }
+    private var positionEngine: PositionEngine      { session.positionEngine }
+    private var motionService: MotionService        { session.motionService }
+    private var sessionLogger: SessionLogger        { session.sessionLogger }
+    private var sc: RideSessionController?          { session.sessionController }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -45,11 +30,11 @@ struct RideView: View {
             Divider()
 
             // Test info + movement progress
-            if let test {
+            if let test = session.test {
                 testInfoBar(test)
                     .padding(.horizontal)
                     .padding(.vertical, 6)
-                if let sc = sessionController {
+                if let sc {
                     movementProgressBar(sc, test: test)
                         .padding(.horizontal)
                         .padding(.bottom, 6)
@@ -59,11 +44,11 @@ struct RideView: View {
 
             // Arena diagram
             ArenaView(
-                configuration: configuration,
+                configuration: session.configuration,
                 riderState: positionEngine.riderState,
                 detectedBeacons: beaconService.detectedBeacons,
-                currentMovement: sessionController.flatMap { sc in
-                    sc.isFinished ? nil : sc.test.movements[safe: sc.currentMovementIndex]
+                currentMovement: sc.flatMap { s in
+                    s.isFinished ? nil : s.test.movements[safe: s.currentMovementIndex]
                 }
             )
             .frame(maxHeight: .infinity)
@@ -75,7 +60,7 @@ struct RideView: View {
                 ScrollView {
                     BeaconStatusView(
                         beacons: beaconService.detectedBeacons,
-                        expectedCount: configuration.beaconMappings.count
+                        expectedCount: session.configuration.beaconMappings.count
                     )
                 }
                 .frame(maxHeight: 200)
@@ -83,55 +68,31 @@ struct RideView: View {
             }
 
             // Controls
-            controlBar
-                .padding()
+            controlBar.padding()
         }
-        .navigationTitle(test?.name ?? "Ride")
+        .navigationTitle(session.test?.name ?? "Ride")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    sessionController?.reset()
+                    session.stop()
                     dismiss()
                 } label: {
                     Label("End Ride", systemImage: "xmark")
                 }
             }
         }
-        .onChange(of: beaconService.detectedBeacons) { _, newBeacons in
-            positionEngine.update(from: newBeacons, motionState: motionService.motionState)
-            let state = positionEngine.riderState
-            if let sc = sessionController {
-                sc.checkAndAnnounce(riderState: state, velocity: positionEngine.velocity)
-            } else {
-                announcementService.checkAndAnnounce(state: state)
-            }
-            if sessionLogger.isLogging {
-                sessionLogger.log(
-                    beacons: newBeacons,
-                    riderState: state,
-                    motionState: motionService.motionState,
-                    accelerationMagnitude: motionService.accelerationMagnitude
-                )
-            }
+        .onChange(of: beaconService.detectedBeacons) { _, _ in
+            session.update()
         }
         .onAppear {
             UIApplication.shared.isIdleTimerDisabled = true
-            beaconService.requestAuthorization()
-            motionService.start()
+            session.start()
         }
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
-            beaconService.stopRanging()
-            motionService.stop()
-            sessionLogger.stop()
-            sessionController?.reset()
-        }
-        .sheet(isPresented: $showShareSheet) {
-            if let url = sessionLogger.logFileURL {
-                ShareSheet(items: [url])
-            }
+            session.stop()
         }
     }
 
@@ -165,7 +126,7 @@ struct RideView: View {
             if beaconService.isRanging {
                 Image(systemName: "antenna.radiowaves.left.and.right")
                     .foregroundStyle(.green)
-                Text("Ranging... \(beaconService.beaconsDetectedCount)/\(configuration.beaconMappings.count) beacons")
+                Text("Ranging... \(beaconService.beaconsDetectedCount)/\(session.configuration.beaconMappings.count) beacons")
                     .font(.subheadline)
             } else {
                 Image(systemName: "antenna.radiowaves.left.and.right.slash")
@@ -195,14 +156,12 @@ struct RideView: View {
 
     private func testInfoBar(_ test: DressageTest) -> some View {
         HStack {
-            if let horse = horseName {
+            if let horse = session.horseName {
                 Label(horse, systemImage: "pawprint.fill")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-
             Spacer()
-
             Text("\(test.level) \u{00B7} \(test.movements.count) movements")
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -225,7 +184,6 @@ struct RideView: View {
             } else if let m = movement {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 2) {
-                        // Movement number, letter, and gait badge
                         HStack(spacing: 6) {
                             Text("\(index + 1)/\(total)")
                                 .font(.caption)
@@ -241,18 +199,14 @@ struct RideView: View {
                                     .foregroundStyle(gaitColor(gait))
                             }
                         }
-                        // Directive text
                         Text(m.directiveText)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(2)
                     }
                     Spacer()
-                    Button {
-                        sc.skipMovement()
-                    } label: {
-                        Image(systemName: "forward.fill")
-                            .font(.caption)
+                    Button { sc.skipMovement() } label: {
+                        Image(systemName: "forward.fill").font(.caption)
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.mini)
@@ -265,10 +219,10 @@ struct RideView: View {
 
     private func gaitColor(_ gait: Gait) -> Color {
         switch gait {
-        case .halt:    return .primary
-        case .walk:    return .blue
-        case .trot:    return .orange
-        case .canter:  return .red
+        case .halt:   return .primary
+        case .walk:   return .blue
+        case .trot:   return .orange
+        case .canter: return .red
         }
     }
 
@@ -305,27 +259,34 @@ struct RideView: View {
 
             Spacer()
 
-            Button {
-                if sessionLogger.isLogging {
-                    sessionLogger.stop()
-                    showShareSheet = true
-                } else {
-                    sessionLogger.start()
+            if let url = shareURL {
+                ShareLink(item: url) {
+                    Label("Share Log", systemImage: "square.and.arrow.up")
+                        .font(.caption)
                 }
-            } label: {
-                Label(
-                    sessionLogger.isLogging ? "\(sessionLogger.sampleCount)" : "Log",
-                    systemImage: sessionLogger.isLogging ? "stop.circle" : "record.circle"
-                )
-                .font(.caption)
+                .buttonStyle(.bordered)
+            } else {
+                Button {
+                    if sessionLogger.isLogging {
+                        sessionLogger.stop()
+                        shareURL = sessionLogger.logFileURL
+                    } else {
+                        shareURL = nil
+                        sessionLogger.start()
+                    }
+                } label: {
+                    Label(
+                        sessionLogger.isLogging ? "\(sessionLogger.sampleCount)" : "Log",
+                        systemImage: sessionLogger.isLogging ? "stop.circle" : "record.circle"
+                    )
+                    .font(.caption)
+                }
+                .buttonStyle(.bordered)
+                .tint(sessionLogger.isLogging ? .red : .secondary)
             }
-            .buttonStyle(.bordered)
-            .tint(sessionLogger.isLogging ? .red : .secondary)
 
             Button {
-                withAnimation {
-                    showDebugPanel.toggle()
-                }
+                withAnimation { showDebugPanel.toggle() }
             } label: {
                 Label(
                     showDebugPanel ? "Hide Debug" : "Show Debug",

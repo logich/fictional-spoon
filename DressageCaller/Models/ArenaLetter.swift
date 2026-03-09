@@ -2,7 +2,7 @@ import Foundation
 
 /// All standard dressage arena letters with their positions in meters.
 /// Origin (0,0) is the bottom-left corner of the arena (A end, left side when facing C).
-enum ArenaLetter: String, CaseIterable, Identifiable, Sendable {
+enum ArenaLetter: String, CaseIterable, Identifiable, Sendable, Codable {
     // Perimeter letters (clockwise from A)
     case A, K, V, E, S, H, C, M, R, B, P, F
     // Centerline letters
