@@ -30,14 +30,12 @@ struct VoicePickerView: View {
             }
 
             Section {
-                Button {
-                    openVoiceSettings()
-                } label: {
-                    Label("Download more voices…", systemImage: "arrow.up.right.square")
-                        .font(.subheadline)
-                }
-            } footer: {
-                Text("Go to Settings → Accessibility → Spoken Content → Voices to download Premium and Enhanced voices.")
+                Label(
+                    "To download Premium or Enhanced voices, go to:\nSettings → Accessibility → Spoken Content → Voices",
+                    systemImage: "info.circle"
+                )
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
             }
         }
         .navigationTitle("Caller Voice")
@@ -109,11 +107,5 @@ struct VoicePickerView: View {
         previewSynthesizer.speak(utterance)
     }
 
-    // MARK: - Settings deep link
 
-    private func openVoiceSettings() {
-        if let url = URL(string: UIApplication.openSettingsURLString) {
-            UIApplication.shared.open(url)
-        }
-    }
 }
