@@ -24,12 +24,12 @@
 
 | Item | Source | Effort |
 |------|--------|--------|
-| Stale beacon eviction: filter `lastSeen` > 3s in `BeaconRangingService.didRange` | REVIEW #7 P1 | S |
-| MotionService: remove redundant `Task @MainActor` in CMMotionManager callback | REVIEW #8 P1 | XS |
-| Idle timer disabled when ride starts, restored on End Ride | REVIEW #17 P3 | XS |
-| Look-ahead timing: velocity-based ETA in `RideSessionController.checkAndAnnounce` | REVIEW #5 P1 | M |
-| Background auth UX: banner + Open Settings when `.authorizedWhenInUse` in `RideView` | REVIEW #10 P1 | S |
-| "Test complete" spoken announcement + chime after final movement | UX-FLOW §9 | S |
+| ✅ Stale beacon eviction: filter `lastSeen` > 3s in `BeaconRangingService.didRange` | REVIEW #7 P1 | S |
+| ✅ MotionService: remove redundant `Task @MainActor` in CMMotionManager callback | REVIEW #8 P1 | XS |
+| ✅ Idle timer disabled when ride starts, restored on End Ride | REVIEW #17 P3 | XS |
+| ✅ Look-ahead timing: velocity-based ETA in `RideSessionController.checkAndAnnounce` | REVIEW #5 P1 | M |
+| ✅ Background auth UX: banner + Open Settings when `.authorizedWhenInUse` in `RideView` | REVIEW #10 P1 | S |
+| ✅ "Test complete" spoken announcement + chime after final movement | UX-FLOW §9 | S |
 
 **Dependencies:**
 - `PositionEngine.velocity` is already `private(set)` — look-ahead can use it directly
@@ -57,12 +57,12 @@
 
 | Item | Source | Effort |
 |------|--------|--------|
-| `BeaconCalibration.readings` → `[ArenaLetter: Double]` (type-safe keys) | REVIEW #14 P2 | XS |
-| Persist `BeaconCalibration` to UserDefaults as JSON (load on startup) | REVIEW #16 P3 | S |
-| `DressageTest`, `Movement`, `MovementLocation`, `PathShape` Codable conformance | REVIEW #12 P2 | S |
-| `SessionLogger` async I/O: buffer rows, flush every 3s on background actor | REVIEW #9 P1 | S |
-| Replace `ShareSheet` with `ShareLink` | REVIEW #13 P2 | XS |
-| Extract `RideSession: @Observable` class owning all ride services; pass into `RideView` | REVIEW #11 P2 | M |
+| ✅ `BeaconCalibration.readings` → `[ArenaLetter: Double]` (type-safe keys) | REVIEW #14 P2 | XS |
+| ✅ Persist `BeaconCalibration` to UserDefaults as JSON (load on startup) | REVIEW #16 P3 | S |
+| ✅ `DressageTest`, `Movement`, `MovementLocation`, `PathShape` Codable conformance | REVIEW #12 P2 | S |
+| ✅ `SessionLogger` async I/O: buffer rows, flush every 3s on background actor | REVIEW #9 P1 | S |
+| ✅ Replace `ShareSheet` with `ShareLink` | REVIEW #13 P2 | XS |
+| ✅ Extract `RideSession: @Observable` class owning all ride services; pass into `RideView` | REVIEW #11 P2 | M |
 
 **Dependencies (must sequence in order):**
 1. `[ArenaLetter: Double]` (#14) before persistence (#16) — changes serialisation format
@@ -98,6 +98,8 @@
 | Timing slider (Earlier/Later) on test-ready screen, persisted per arena ID | UX-FLOW §6 | M |
 | "Preview Movements" scrollable list view (sequence, location, directive text, gait badge) | UX-FLOW §6 | S |
 | Haptic feedback (`UIImpactFeedbackGenerator`) at each movement trigger | REVIEW #18 P3 | XS |
+| Import dressage test from URL: PDF download → PDFKit text extraction → parser → review screen → save | Test import | M |
+| `TestLibrary`: persist imported tests as JSON in `Documents/tests/` | Test import | XS |
 
 **Dependencies:**
 - `RideSession` (#11, Sprint 2) required for timing slider to cleanly set `triggerDistance`
@@ -134,6 +136,7 @@
 | Simulator: mock follows `DressageTest.movements` in sequence (not perimeter loop) | REVIEW #19 P3 | S |
 | Accessibility: arena canvas labels, control button labels, beacon status accessibility | REVIEW #15 P2 | M |
 | App icon redesign — current placeholder insufficient for App Store | Design | M |
+| Camera OCR import: photograph printed test → Vision `VNRecognizeTextRequest` → same parser pipeline | Test import | M |
 
 **Dependencies:**
 - Arena profiles require `BeaconCalibration` Codable + persisted (Sprint 2)
@@ -215,3 +218,4 @@ Sprint 5: widget extension → Live Activity, Watch (future)
 - Recorded human caller voices premium feature (UX-FLOW §296)
 - Stride-based timing calibration per horse (UX-FLOW §284)
 - Multi-arena auto-detect by beacon UUID (UX-FLOW §253)
+- **Bundled test data**: Cannot bundle dressage tests in the app binary. Tests are copyrighted by USDF, USEF, FEI, and BD regardless of format (PDF, XML, text). Users obtain PDFs from their governing body; the app parses locally (fair use). Import flow (Sprint 3/4) is the only path.
