@@ -19,6 +19,7 @@
 		4A0BF43768C86C2984E6342C /* CalibrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E31A396D644792B228AFDFEA /* CalibrationView.swift */; };
 		4B62154CE2A73B60981BDE20 /* AnnouncementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E93017EC21281115D229CA /* AnnouncementService.swift */; };
 		4C172A71A032B61061EC8626 /* VoicePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43ED962F168FCE0D0A04B1FB /* VoicePickerView.swift */; };
+		668CE390169772FCD5BFB220 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95D27F1D02FCFC789DABF602 /* Assets.xcassets */; };
 		67A9E30F5CB4C232C3526E83 /* RideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12805E1DA9E3EA106BCF1426 /* RideView.swift */; };
 		6CABFDF3518582375508167E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F0656BFBCFA96476192097B2 /* CoreLocation.framework */; };
 		8516CEFC1EDD1BE7DE297A4A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0F003CBB03822AC5001217 /* HomeView.swift */; };
@@ -52,6 +53,7 @@
 		7CCF1EBF47C8396979D752B2 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		810CC0FDFCA36609667A29AF /* DressageCaller.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DressageCaller.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		85A3C413980CADEFA3174E78 /* ArenaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArenaView.swift; sourceTree = "<group>"; };
+		95D27F1D02FCFC789DABF602 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9DF03A80925E254CCD96725C /* PositionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionEngine.swift; sourceTree = "<group>"; };
 		A8E9D647AF1A818228457D04 /* SessionLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLogger.swift; sourceTree = "<group>"; };
 		AD343DCF0295B26CE3248829 /* DressageTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DressageTest.swift; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 		6B419E0623AAB6CFD3D93406 /* DressageCaller */ = {
 			isa = PBXGroup;
 			children = (
+				95D27F1D02FCFC789DABF602 /* Assets.xcassets */,
 				E93CDFFEE5F16C6E7375D9A6 /* DressageCaller.entitlements */,
 				4FB371BB02AF8E1067525C8A /* Info.plist */,
 				98BBE494E833CA1BBA70D7F4 /* App */,
@@ -199,6 +202,7 @@
 			buildConfigurationList = 88A9E6460F4D236D1B28C514 /* Build configuration list for PBXNativeTarget "DressageCaller" */;
 			buildPhases = (
 				906A41580EF7FDBE4D6E879C /* Sources */,
+				7E8C4F51B74BF9757E500931 /* Resources */,
 				A52C4B716AEFDBCC263B457A /* Frameworks */,
 			);
 			buildRules = (
@@ -245,6 +249,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7E8C4F51B74BF9757E500931 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				668CE390169772FCD5BFB220 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		906A41580EF7FDBE4D6E879C /* Sources */ = {
