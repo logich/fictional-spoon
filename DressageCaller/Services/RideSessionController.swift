@@ -65,6 +65,14 @@ final class RideSessionController {
         advanceMovement()
     }
 
+    /// Resets the test back to the first movement.
+    func reset() {
+        synthesizer.stopSpeaking(at: .immediate)
+        currentMovementIndex = 0
+        lastAnnouncedIndex = -1
+        isFinished = false
+    }
+
     // MARK: - Private
 
     private func advanceMovement() {

@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Active ride screen — arena diagram, beacon status, and ride controls.
 struct RideView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var beaconService: BeaconRangingService
     @State private var positionEngine: PositionEngine
     @State private var motionService = MotionService()
@@ -78,6 +79,17 @@ struct RideView: View {
         }
         .navigationTitle(test?.name ?? "Ride")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    sessionController?.reset()
+                    dismiss()
+                } label: {
+                    Label("End Ride", systemImage: "xmark")
+                }
+            }
+        }
         .onChange(of: beaconService.detectedBeacons) { _, newBeacons in
             positionEngine.update(from: newBeacons, motionState: motionService.motionState)
             let state = positionEngine.riderState
@@ -103,6 +115,7 @@ struct RideView: View {
             beaconService.stopRanging()
             motionService.stop()
             sessionLogger.stop()
+            sessionController?.reset()
         }
         .sheet(isPresented: $showShareSheet) {
             if let url = sessionLogger.logFileURL {
