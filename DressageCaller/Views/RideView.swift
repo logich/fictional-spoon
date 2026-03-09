@@ -6,6 +6,7 @@ struct RideView: View {
     @State private var positionEngine: PositionEngine
     @State private var motionService = MotionService()
     @State private var announcementService = AnnouncementService()
+    @State private var sessionController: RideSessionController?
     @State private var sessionLogger = SessionLogger()
     @State private var showDebugPanel = false
     @State private var showShareSheet = false
@@ -22,6 +23,9 @@ struct RideView: View {
         self.horseName = horseName
         self._beaconService = State(initialValue: BeaconRangingService(configuration: configuration))
         self._positionEngine = State(initialValue: PositionEngine(configuration: configuration, calibration: calibration))
+        if let test {
+            self._sessionController = State(initialValue: RideSessionController(test: test, configuration: configuration))
+        }
     }
 
     var body: some View {
@@ -33,11 +37,16 @@ struct RideView: View {
 
             Divider()
 
-            // Test info bar
+            // Test info + movement progress
             if let test {
                 testInfoBar(test)
                     .padding(.horizontal)
                     .padding(.vertical, 6)
+                if let sc = sessionController {
+                    movementProgressBar(sc, test: test)
+                        .padding(.horizontal)
+                        .padding(.bottom, 6)
+                }
                 Divider()
             }
 
@@ -71,11 +80,16 @@ struct RideView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onChange(of: beaconService.detectedBeacons) { _, newBeacons in
             positionEngine.update(from: newBeacons, motionState: motionService.motionState)
-            announcementService.checkAndAnnounce(state: positionEngine.riderState)
+            let state = positionEngine.riderState
+            if let sc = sessionController {
+                sc.checkAndAnnounce(riderState: state)
+            } else {
+                announcementService.checkAndAnnounce(state: state)
+            }
             if sessionLogger.isLogging {
                 sessionLogger.log(
                     beacons: newBeacons,
-                    riderState: positionEngine.riderState,
+                    riderState: state,
                     motionState: motionService.motionState,
                     accelerationMagnitude: motionService.accelerationMagnitude
                 )
@@ -86,6 +100,7 @@ struct RideView: View {
             motionService.start()
         }
         .onDisappear {
+            beaconService.stopRanging()
             motionService.stop()
             sessionLogger.stop()
         }
@@ -95,6 +110,8 @@ struct RideView: View {
             }
         }
     }
+
+    // MARK: - Status bar
 
     private var statusBar: some View {
         HStack {
@@ -127,6 +144,8 @@ struct RideView: View {
         }
     }
 
+    // MARK: - Test info
+
     private func testInfoBar(_ test: DressageTest) -> some View {
         HStack {
             if let horse = horseName {
@@ -143,6 +162,38 @@ struct RideView: View {
         }
     }
 
+    private func movementProgressBar(_ sc: RideSessionController, test: DressageTest) -> some View {
+        let index = sc.currentMovementIndex
+        let total = test.movements.count
+        let movement = index < total ? test.movements[index] : nil
+
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                if sc.isFinished {
+                    Text("Test complete")
+                        .font(.caption.bold())
+                        .foregroundStyle(.green)
+                } else if let m = movement {
+                    Text("\(index + 1)/\(total) — \(m.location.label)")
+                        .font(.caption.bold())
+                    Spacer()
+                    Button {
+                        sc.skipMovement()
+                    } label: {
+                        Image(systemName: "forward.fill")
+                            .font(.caption)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.mini)
+                }
+            }
+            ProgressView(value: Double(index), total: Double(total))
+                .tint(.blue)
+        }
+    }
+
+    // MARK: - Motion state color
+
     private var motionStateColor: Color {
         switch motionService.motionState {
         case .stationary: .secondary
@@ -151,6 +202,8 @@ struct RideView: View {
         case .cantering:  .red
         }
     }
+
+    // MARK: - Control bar
 
     private var controlBar: some View {
         HStack {
@@ -172,7 +225,6 @@ struct RideView: View {
 
             Spacer()
 
-            // Log controls
             Button {
                 if sessionLogger.isLogging {
                     sessionLogger.stop()

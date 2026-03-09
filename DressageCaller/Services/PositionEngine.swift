@@ -17,8 +17,8 @@ final class PositionEngine {
     private var lastPosition: CGPoint?
     /// Timestamp of last accepted position.
     private var lastUpdateTime: Date?
-    /// Smoothed velocity vector (meters/sec) for direction continuity.
-    private var velocity: CGVector = .zero
+    /// Smoothed velocity vector (meters/sec) for direction continuity and look-ahead.
+    private(set) var velocity: CGVector = .zero
 
     init(configuration: ArenaConfiguration = .prototype, calibration: BeaconCalibration = .uncalibrated) {
         self.configuration = configuration

@@ -25,7 +25,9 @@
 		956081D6CC1B12876CF97D7B /* MotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA71F62B382B55B4DC9F1DA3 /* MotionService.swift */; };
 		A526F9F72AC405BA9F555E48 /* BeaconRangingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF1B672D0094BD179066F7B /* BeaconRangingService.swift */; };
 		B59C1489C880B75DC829706B /* DressageCallerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7B86A16919F52E3FD2883 /* DressageCallerApp.swift */; };
+		C7200F23E7E36E6A7810779B /* CalibrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503496F7DC5565EDE4C04578 /* CalibrationViewModel.swift */; };
 		C8B0A059BB6477FD3319AFC3 /* RiderState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F9B8D0BAC005FF5CFC4FE1 /* RiderState.swift */; };
+		CA0B41A1BD3202109ED4A36D /* RideSessionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBCE5557D84EC7F9A6E660B5 /* RideSessionController.swift */; };
 		CCF4351C4C6BC6F6D305E31C /* ArenaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A3C413980CADEFA3174E78 /* ArenaView.swift */; };
 		D36F3534C59ED5CF71F94E38 /* SessionLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E9D647AF1A818228457D04 /* SessionLogger.swift */; };
 		F82EE56A751DAF3E1506A120 /* DressageTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD343DCF0295B26CE3248829 /* DressageTest.swift */; };
@@ -36,6 +38,7 @@
 		12805E1DA9E3EA106BCF1426 /* RideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideView.swift; sourceTree = "<group>"; };
 		47859CA9FFEBBA6EA12166FF /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 		4FB371BB02AF8E1067525C8A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		503496F7DC5565EDE4C04578 /* CalibrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalibrationViewModel.swift; sourceTree = "<group>"; };
 		65C7B86A16919F52E3FD2883 /* DressageCallerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DressageCallerApp.swift; sourceTree = "<group>"; };
 		687F0F6B86DEFB586B5CC91B /* BeaconStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconStatusView.swift; sourceTree = "<group>"; };
 		7471A38811354C52B48F12A5 /* TestSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSelectionView.swift; sourceTree = "<group>"; };
@@ -50,6 +53,7 @@
 		B857F4310440A6812FF8CB81 /* ArenaLetter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArenaLetter.swift; sourceTree = "<group>"; };
 		C3E93017EC21281115D229CA /* AnnouncementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementService.swift; sourceTree = "<group>"; };
 		CD0F003CBB03822AC5001217 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		DBCE5557D84EC7F9A6E660B5 /* RideSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideSessionController.swift; sourceTree = "<group>"; };
 		DD7999C6B7232FBE3CAC3D8C /* SampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleTests.swift; sourceTree = "<group>"; };
 		DDF1B672D0094BD179066F7B /* BeaconRangingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconRangingService.swift; sourceTree = "<group>"; };
 		E31A396D644792B228AFDFEA /* CalibrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalibrationView.swift; sourceTree = "<group>"; };
@@ -73,6 +77,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		280B3FA81D43EA24E704E3D7 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				503496F7DC5565EDE4C04578 /* CalibrationViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		2FD6398FB5396EB666FB64E3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -90,6 +102,7 @@
 				DDF1B672D0094BD179066F7B /* BeaconRangingService.swift */,
 				EA71F62B382B55B4DC9F1DA3 /* MotionService.swift */,
 				9DF03A80925E254CCD96725C /* PositionEngine.swift */,
+				DBCE5557D84EC7F9A6E660B5 /* RideSessionController.swift */,
 				A8E9D647AF1A818228457D04 /* SessionLogger.swift */,
 			);
 			path = Services;
@@ -103,6 +116,7 @@
 				98BBE494E833CA1BBA70D7F4 /* App */,
 				C3D9A1801E3D29D14F69EA94 /* Models */,
 				345ACF2DC5F418FA3287CA38 /* Services */,
+				280B3FA81D43EA24E704E3D7 /* ViewModels */,
 				D80ADA6883549A8E403DA93F /* Views */,
 			);
 			path = DressageCaller;
@@ -228,11 +242,13 @@
 				A526F9F72AC405BA9F555E48 /* BeaconRangingService.swift in Sources */,
 				13C9A2A1E379565B47B1FC06 /* BeaconStatusView.swift in Sources */,
 				4A0BF43768C86C2984E6342C /* CalibrationView.swift in Sources */,
+				C7200F23E7E36E6A7810779B /* CalibrationViewModel.swift in Sources */,
 				B59C1489C880B75DC829706B /* DressageCallerApp.swift in Sources */,
 				F82EE56A751DAF3E1506A120 /* DressageTest.swift in Sources */,
 				8516CEFC1EDD1BE7DE297A4A /* HomeView.swift in Sources */,
 				956081D6CC1B12876CF97D7B /* MotionService.swift in Sources */,
 				00688EB2EACF67C7701BBDDD /* PositionEngine.swift in Sources */,
+				CA0B41A1BD3202109ED4A36D /* RideSessionController.swift in Sources */,
 				67A9E30F5CB4C232C3526E83 /* RideView.swift in Sources */,
 				C8B0A059BB6477FD3319AFC3 /* RiderState.swift in Sources */,
 				250CDEE98C057123D88E6E92 /* SampleTests.swift in Sources */,
