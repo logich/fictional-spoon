@@ -21,14 +21,6 @@ struct VoicePickerView: View {
         List {
             automaticRow
 
-            ForEach(grouped, id: \.quality.rawValue) { group in
-                Section(group.quality.label) {
-                    ForEach(group.voices, id: \.identifier) { voice in
-                        voiceRow(voice)
-                    }
-                }
-            }
-
             Section {
                 Label(
                     "To download Premium or Enhanced voices, go to:\nSettings → Accessibility → Spoken Content → Voices",
@@ -36,6 +28,14 @@ struct VoicePickerView: View {
                 )
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+            }
+
+            ForEach(grouped, id: \.quality.rawValue) { group in
+                Section(group.quality.label) {
+                    ForEach(group.voices, id: \.identifier) { voice in
+                        voiceRow(voice)
+                    }
+                }
             }
         }
         .navigationTitle("Caller Voice")
