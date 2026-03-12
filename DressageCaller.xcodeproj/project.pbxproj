@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA1234ABCDEF5678901234AA /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB1234ABCDEF5678901234BB /* CoreBluetooth.framework */; };
+		CC1234ABCDEF5678901234CC /* BeaconDiagnosticService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD1234ABCDEF5678901234DD /* BeaconDiagnosticService.swift */; };
+		EE1234ABCDEF5678901234EE /* BeaconDiagnosticView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1234ABCDEF5678901234FF /* BeaconDiagnosticView.swift */; };
 		00688EB2EACF67C7701BBDDD /* PositionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DF03A80925E254CCD96725C /* PositionEngine.swift */; };
 		04E495761F359329AE08FA8C /* ArenaConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A562305139E377DFDC4037 /* ArenaConfiguration.swift */; };
 		13C9A2A1E379565B47B1FC06 /* BeaconStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 687F0F6B86DEFB586B5CC91B /* BeaconStatusView.swift */; };
@@ -38,6 +41,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		BB1234ABCDEF5678901234BB /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		DD1234ABCDEF5678901234DD /* BeaconDiagnosticService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDiagnosticService.swift; sourceTree = "<group>"; };
+		FF1234ABCDEF5678901234FF /* BeaconDiagnosticView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDiagnosticView.swift; sourceTree = "<group>"; };
 		09A562305139E377DFDC4037 /* ArenaConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArenaConfiguration.swift; sourceTree = "<group>"; };
 		12805E1DA9E3EA106BCF1426 /* RideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideView.swift; sourceTree = "<group>"; };
 		43ED962F168FCE0D0A04B1FB /* VoicePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoicePickerView.swift; sourceTree = "<group>"; };
@@ -79,6 +85,7 @@
 				6CABFDF3518582375508167E /* CoreLocation.framework in Frameworks */,
 				2C33D1A0981609A5ED1A9179 /* AVFoundation.framework in Frameworks */,
 				2FDFBAE4D64598CA7BA85181 /* CoreMotion.framework in Frameworks */,
+				AA1234ABCDEF5678901234AA /* CoreBluetooth.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,6 +104,7 @@
 			isa = PBXGroup;
 			children = (
 				7493D877E22CFEE2768540A7 /* AVFoundation.framework */,
+				BB1234ABCDEF5678901234BB /* CoreBluetooth.framework */,
 				F0656BFBCFA96476192097B2 /* CoreLocation.framework */,
 				7CCF1EBF47C8396979D752B2 /* CoreMotion.framework */,
 			);
@@ -107,6 +115,7 @@
 			isa = PBXGroup;
 			children = (
 				C3E93017EC21281115D229CA /* AnnouncementService.swift */,
+				DD1234ABCDEF5678901234DD /* BeaconDiagnosticService.swift */,
 				DDF1B672D0094BD179066F7B /* BeaconRangingService.swift */,
 				EA71F62B382B55B4DC9F1DA3 /* MotionService.swift */,
 				9DF03A80925E254CCD96725C /* PositionEngine.swift */,
@@ -185,6 +194,7 @@
 			children = (
 				85A3C413980CADEFA3174E78 /* ArenaView.swift */,
 				687F0F6B86DEFB586B5CC91B /* BeaconStatusView.swift */,
+				FF1234ABCDEF5678901234FF /* BeaconDiagnosticView.swift */,
 				E31A396D644792B228AFDFEA /* CalibrationView.swift */,
 				CD0F003CBB03822AC5001217 /* HomeView.swift */,
 				12805E1DA9E3EA106BCF1426 /* RideView.swift */,
@@ -268,6 +278,8 @@
 			files = (
 				4B62154CE2A73B60981BDE20 /* AnnouncementService.swift in Sources */,
 				04E495761F359329AE08FA8C /* ArenaConfiguration.swift in Sources */,
+				CC1234ABCDEF5678901234CC /* BeaconDiagnosticService.swift in Sources */,
+				EE1234ABCDEF5678901234EE /* BeaconDiagnosticView.swift in Sources */,
 				2D5BD68B0CC3DAF9A50DE146 /* ArenaLetter.swift in Sources */,
 				CCF4351C4C6BC6F6D305E31C /* ArenaView.swift in Sources */,
 				3A74A43410E64C65E8BA6FFB /* BeaconCalibration.swift in Sources */,

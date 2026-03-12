@@ -8,6 +8,7 @@ struct HomeView: View {
     @State private var selectedTest: DressageTest? = SampleTests.trainingLevel1
     @State private var calibration: BeaconCalibration = .load()
     @State private var navigateToRide = false
+    @State private var navigateToDiagnostic = false
     @State private var navigateToCalibration = false
     @State private var voiceRefreshToken = UUID()  // forces voice label to update after picker dismisses
 
@@ -43,8 +44,11 @@ struct HomeView: View {
                     Text("Using \(configuration.beaconMappings.count) beacons at \(configuration.beaconLetters.map(\.rawValue).sorted().joined(separator: ", "))")
                 }
 
-                // Calibration
+                // Beacons
                 Section {
+                    NavigationLink(destination: BeaconDiagnosticView()) {
+                        Label("Beacon Diagnostic", systemImage: "antenna.radiowaves.left.and.right")
+                    }
                     NavigationLink {
                         CalibrationView(configuration: configuration) { result in
                             calibration = result

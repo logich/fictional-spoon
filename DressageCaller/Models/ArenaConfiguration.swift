@@ -39,8 +39,10 @@ struct ArenaConfiguration: Sendable {
     }
 
     /// Default prototype configuration: 4 beacons at A, E, C, B in a 20×60m arena.
+    /// Uses the Kontakt.io factory-default iBeacon UUID (f7826da6-...).
+    /// Major/minor values below are placeholders — run Beacon Diagnostic to discover the real ones.
     static let prototype = ArenaConfiguration(
-        beaconUUID: UUID(uuidString: "B9407F30-F5F8-466E-AFF9-25556B57FE6D")!,
+        beaconUUID: UUID(uuidString: "F7826DA6-4FA2-4E98-8024-BC5B71E0893E")!,
         arenaSize: .standard,
         beaconMappings: [
             BeaconMapping(letter: .A, major: 1, minor: 0),
