@@ -1,0 +1,4 @@
+elapsed_s,beacon_letter,rssi,accuracy_m,proximity,pos_x,pos_y,nearest_letter,distance_to_nearest,confidence,motion_state,accel_magnitude,filtered_pos_x,filtered_pos_y
+0.88,B,-50,0.42,Near,19.52,30.00,B,0.48,weak,walking,0.0138,19.52,30.00
+1.88,B,-49,0.34,Immediate,19.53,30.00,B,0.47,weak,stationary,0.0116,19.53,30.00
+2.89,B,-47,0.27,Immediate,19.54,30.00,B,0.46,weak,stationary,0.0398,19.54,30.00
