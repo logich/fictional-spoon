@@ -1,346 +1,313 @@
 # Data Model
 
-## Entity Relationship Overview
+This document describes the data model for Dressage Caller. Each entity is annotated with its implementation status:
 
-```
-Rider (1) ──── has many ──── Horse (n)
-Rider (1) ──── has many ──── Arena (n)
-Rider (1) ──── has many ──── SavedTest (n)
-Arena  (1) ──── has many ──── BeaconMapping (n)
-Arena  (1) ──── has many ──── Calibration (n)
-Horse  (1) ──── has many ──── GaitProfile (n)  [one per arena]
-Test   (1) ──── has many ──── Movement (n)
-Rider  (1) ──── has many ──── RideSession (n)
-RideSession (1) ── ref ──── Test, Horse, Arena
-RideSession (1) ── has many ── PositionSample (n)
-```
+- ✅ **Implemented** — Swift type exists in the codebase
+- 🔲 **Planned** — documented here but no Swift code exists yet
 
 ---
 
-## Core Entities
+## Arena & Beacon Entities
 
-### Rider
-The app user. Single-user for MVP (no accounts, no cloud sync).
-
-```
-Rider
-  id: UUID
-  name: String
-  preferredVoice: VoiceConfig
-  defaultArena: Arena?
-  defaultHorse: Horse?
+### `ArenaSize` ✅
+```swift
+enum ArenaSize: String, Sendable, Codable, CaseIterable {
+    case small    // 20×40m — 8 perimeter letters: A, K, E, H, C, M, B, F
+    case standard // 20×60m — 12 perimeter letters: A, K, V, E, S, H, C, M, R, B, P, F
+}
 ```
 
-### Horse
-Stride length and gait signatures vary by horse. Linda rides two.
+### `ArenaLetter` ✅
+All standard arena letters, including centerline. Implements `position(for: ArenaSize) -> CGPoint` returning (x, y) coordinates in meters from the bottom-left origin (A end, left side when facing C).
 
 ```
-Horse
-  id: UUID
-  name: String                    // "Duke"
-  breed: String?                  // "Hanoverian"
-  gaitProfiles: [GaitProfile]     // one per arena (signal environment differs)
-
-GaitProfile
-  id: UUID
-  horse: Horse
-  arena: Arena
-  walkStrideLength: Double        // meters, measured during calibration/rides
-  trotStrideLength: Double
-  canterStrideLength: Double
-  walkSignature: IMUSignature     // accelerometer pattern for classification
-  trotSignature: IMUSignature
-  canterSignature: IMUSignature
-  lastUpdated: Date               // profiles refine over time with more rides
-
-IMUSignature
-  sampleRate: Int                 // Hz (50)
-  dominantFrequency: Double       // Hz — distinguishes gaits
-  amplitudeRange: (min: Double, max: Double)
-  templateData: Data              // serialized reference waveform for classifier
+Perimeter letters: A, K, V, E, S, H, C, M, R, B, P, F
+Centerline letters: D, L, X, I, G
 ```
 
-### Arena
-
+Small arena (20×40m) perimeter positions:
 ```
-Arena
-  id: UUID
-  name: String                    // "Linda's Outdoor"
-  type: ArenaSize                 // .small_20x40 | .full_20x60
-  isIndoor: Bool                  // affects default timing offset
-  beacons: [BeaconMapping]
-  calibrations: [Calibration]
-  timingOffset: Int               // strides before letter to announce (user slider)
-                                  // stored per arena since indoor/outdoor differ
-
-ArenaSize
-  case small_20x40               // 8 letters: A, K, E, H, C, M, B, F
-  case full_20x60                // 12 letters: A, K, V, E, S, H, C, M, R, B, P, F
-
-  // Each size defines:
-  letters: [Letter]               // ordered list with known coordinates
-  perimeterLength: Double         // 120m or 160m
+A (10, 0) — bottom center
+K  (0, 6) — left wall
+E  (0, 20) — left center
+H  (0, 34) — left wall
+C  (10, 40) — top center
+M  (20, 34) — right wall
+B  (20, 20) — right center
+F  (20, 6)  — right wall
 ```
 
-### Letter
-Fixed positions in the arena. Known geometry, never changes.
+### `BeaconMapping` ✅
+Links a BLE beacon's iBeacon identity to an arena letter.
 
-```
-Letter
-  id: String                     // "A", "K", "E", etc.
-  position: ArenaPoint           // (x, y) in meters from arena origin
-  isOnRail: Bool                 // true for perimeter letters, false for centerline (D, X, G, etc.)
-
-ArenaPoint
-  x: Double                      // 0–20m (width)
-  y: Double                      // 0–40m or 0–60m (length)
+```swift
+struct BeaconMapping: Sendable {
+    let letter: ArenaLetter
+    let major: UInt16
+    let minor: UInt16
+}
 ```
 
-### BeaconMapping
-Links a physical BLE beacon to an arena letter.
+> **Note**: The iBeacon proximity UUID is shared across all beacons in a configuration; it lives on `ArenaConfiguration`, not per `BeaconMapping`.
 
+> **Planned but not in code**: `rssiAtLetter: Int?`, `lastSeen: Date?`, `batteryLevel: Int?`
+
+### `ArenaConfiguration` ✅
+Configuration for a single arena. Holds the shared iBeacon UUID, arena dimensions, and the beacon-to-letter mapping table.
+
+```swift
+struct ArenaConfiguration: Sendable {
+    let beaconUUID: UUID         // shared iBeacon proximity UUID for all beacons in this arena
+    let arenaSize: ArenaSize
+    let beaconMappings: [BeaconMapping]
+
+    func letter(forMajor major: UInt16, minor: UInt16) -> ArenaLetter?
+    var beaconLetters: Set<ArenaLetter>
+
+    static let prototype: ArenaConfiguration  // 4-beacon placeholder — see note below
+}
 ```
-BeaconMapping
-  id: UUID
-  letter: Letter
-  beaconUUID: UUID               // iBeacon proximity UUID
-  major: UInt16                  // iBeacon major value
-  minor: UInt16                  // iBeacon minor value
-  rssiAtLetter: Int?             // calibrated RSSI when standing at the letter
-  lastSeen: Date?
-  batteryLevel: Int?             // if beacon reports it
+
+**`prototype` constant**: Uses the Kontakt factory-default UUID (`F7826DA6-4FA2-4E98-8024-BC5B71E0893E`) with 4 beacons at A, E, C, B and **placeholder major/minor values** (1/0, 1/1, 1/2, 1/3). Must be replaced with real values once Beacon Diagnostic is run on device with powered beacons.
+
+**Production configuration**: 8 beacons required (A, K, E, H, C, M, B, F). Field testing confirmed that 4 beacons are insufficient in a metal building due to multipath noise. See `TEST-RESULTS.md`.
+
+> **Relationship to documented `Arena` type**: The original `DATA-MODEL.md` described an `Arena` entity with fields for `name`, `isIndoor`, and `timingOffset`. These are planned features; the current implementation uses the simpler `ArenaConfiguration` struct. The `timingOffset` concept is planned for Sprint 3 as a user-adjustable slider.
+
+### `BeaconCalibration` ✅
+RSSI reference values captured during the guided perimeter walk. Used by `PositionEngine` to improve ranging accuracy for a specific physical environment.
+
+```swift
+struct BeaconCalibration {
+    let readings: [ArenaLetter: Double]  // calibrated RSSI at each letter position
+    static let uncalibrated: BeaconCalibration
+
+    func estimatedDistance(from beacon: BeaconMapping, rssi: Double) -> Double
+}
 ```
 
-### Calibration
-Captured during the guided perimeter walk. One per arena, can be re-run.
-
-```
-Calibration
-  id: UUID
-  arena: Arena
-  horse: Horse?                  // if ridden during calibration
-  date: Date
-  letterReadings: [LetterReading]
-
-LetterReading
-  letter: Letter
-  beaconRSSI: [BeaconRSSI]       // signal from ALL beacons at this position
-  imuSnapshot: IMUSnapshot       // device orientation and motion at this point
-
-BeaconRSSI
-  beacon: BeaconMapping
-  rssi: Int                      // signal strength from this beacon at this letter position
-  distance: Double               // estimated distance in meters
-
-IMUSnapshot
-  heading: Double                // magnetic heading in degrees
-  acceleration: (x: Double, y: Double, z: Double)
-  rotation: (roll: Double, pitch: Double, yaw: Double)
-```
+Persisted to UserDefaults as JSON after each calibration run; loaded on startup.
 
 ---
 
 ## Test Entities
 
-### Test
-A dressage test definition. Immutable reference data.
+### `DressageTest` ✅ (Codable)
+An ordered sequence of movements. Immutable reference data.
 
-```
-Test
-  id: UUID
-  name: String                   // "Training Level Test 1"
-  organization: Organization     // .usdf | .westernDressage | .fei | .usef
-  level: String                  // "Training", "First", "Basic", etc.
-  arenaSize: ArenaSize           // which arena this test requires
-  year: Int                      // test version year (e.g., 2023)
-  effectiveThrough: Date?        // "effective through November 2026"
-  movements: [Movement]          // ordered sequence
+```swift
+struct DressageTest: Identifiable, Sendable, Codable {
+    let id: UUID
+    let name: String                      // "Training Level Test 1"
+    let organization: DressageOrganization
+    let level: String                     // "Training", "First", "Basic", etc.
+    let arenaSize: ArenaSize
+    let year: Int                         // test version year, e.g. 2023
+    let movements: [Movement]
 
-Organization
-  case usdf                      // USDF Traditional Dressage
-  case westernDressage           // Western Dressage
-  case fei                       // FEI international
-  case usef                      // USEF
+    func movement(after sequence: Int) -> Movement?
+}
 ```
 
-### Movement
-A single step in the test sequence. The heart of the calling logic.
+> **Planned but not in code**: `effectiveThrough: Date?`
 
+### `DressageOrganization` ✅ (Codable)
+```swift
+enum DressageOrganization: String, Sendable, Codable, CaseIterable {
+    case usdf            // USDF Traditional Dressage
+    case usef            // USEF
+    case fei             // FEI International
+    case westernDressage // Western Dressage
+}
 ```
-Movement
-  id: UUID
-  sequence: Int                  // 1, 2, 3... order in test
-  triggerLetter: Letter          // where this movement is called
-  triggerZone: TriggerZone       // how to match rider position to trigger
-  spokenText: String             // "A — Enter working trot"
-  directiveText: String?         // full official text for display/preview
-  expectedGait: Gait?            // what gait the rider should be in after this movement
-  expectedHeading: HeadingRange  // which direction rider should be traveling
 
-TriggerZone
-  letter: Letter                 // target letter
-  approachHeading: Double        // expected heading toward this letter (degrees)
-  headingTolerance: Double       // ± degrees (default 45°)
-  // Trigger distance is NOT stored here — it's computed at runtime from:
-  //   rider velocity × stride length × timingOffset (strides from arena settings)
+### `Movement` ✅ (Codable)
+A single step in a dressage test sequence.
 
-HeadingRange
-  center: Double                 // degrees, 0 = north along arena
-  tolerance: Double              // ± degrees
+```swift
+struct Movement: Identifiable, Sendable, Codable {
+    let id: UUID
+    let sequence: Int                // 1-based position in test
+    let location: MovementLocation   // where this movement triggers
+    let spokenText: String           // "A — Enter working trot"
+    let directiveText: String        // full official directive text
+    let expectedGait: Gait?          // gait the rider should be in after this movement
+    let path: PathShape?             // expected path shape for canvas visualization
+}
+```
 
-Gait
-  case halt
-  case walk
-  case trot
-  case canter
+> **Note on design divergence**: The original `DATA-MODEL.md` described `triggerLetter: Letter`, `triggerZone: TriggerZone`, and `expectedHeading: HeadingRange`. The implementation uses `location: MovementLocation` and `path: PathShape` instead. `TriggerZone` and `HeadingRange` are not in the codebase.
+
+### `MovementLocation` ✅ (Codable)
+```swift
+enum MovementLocation: Sendable, Equatable, Codable {
+    case letter(ArenaLetter)
+    case between(ArenaLetter, ArenaLetter)
+
+    func position(for size: ArenaSize) -> CGPoint
+    var label: String  // "A" or "Between B & M"
+}
+```
+
+### `PathShape` ✅ (Codable)
+The geometric path the rider traces for a movement, used for the arena canvas.
+
+```swift
+enum PathShape: Sendable, Codable {
+    case line(to: MovementLocation)
+    case circle(diameterMeters: Double)
+    case track(waypoints: [ArenaLetter])
+}
+```
+
+### `Gait` ✅ (Codable)
+```swift
+enum Gait: String, Sendable, Codable, CaseIterable, Identifiable {
+    case halt
+    case walk
+    case trot
+    case canter
+}
 ```
 
 ---
 
 ## Session Entities
 
-### RideSession
-One test run-through. Records everything for post-ride replay.
+### `RideSession` ✅
+Owns all services required for an active ride. Created by `HomeView`, passed into `RideView`. `@MainActor @Observable`.
 
+```swift
+final class RideSession {
+    let configuration: ArenaConfiguration
+    let calibration: BeaconCalibration
+    let test: DressageTest?
+    let horseName: String?
+
+    // Owned services
+    let beaconService: BeaconRangingService
+    let positionEngine: PositionEngine
+    let motionService: MotionService
+    let announcementService: AnnouncementService
+    let sessionLogger: SessionLogger
+    private(set) var sessionController: RideSessionController?
+
+    func start()
+    func stop()
+    func update()   // called each time detected beacons change
+}
 ```
-RideSession
-  id: UUID
-  date: Date
-  test: Test
-  horse: Horse
-  arena: Arena
-  mode: SessionMode              // .competition | .practice
-  startTime: Date
-  endTime: Date?
-  duration: TimeInterval?
-  movementsCalled: Int           // how many of the test's movements were triggered
-  totalMovements: Int
-  positionLog: [PositionSample]  // high-frequency tracking data for replay
-  movementLog: [MovementEvent]   // when each movement was actually called
-  gaitLog: [GaitSegment]         // gait classification over time
 
-SessionMode
-  case competition               // bell + countdown, no pausing
-  case practice                  // no bell, pauses on halt
+> **Relationship to documented session entities**: The original `DATA-MODEL.md` described `RideSession` as a data record with `positionLog`, `movementLog`, and `gaitLog`. The current implementation of `RideSession` is a service container, not a data record. Session log data is written to CSV by `SessionLogger`. The data-record version (`PositionSample`, `MovementEvent`, `GaitSegment`) is planned for a future sprint when post-ride summary and path replay are implemented (Sprint 4).
 
-PositionSample
-  timestamp: TimeInterval        // seconds from session start
-  position: ArenaPoint           // estimated (x, y)
-  heading: Double                // degrees
-  velocity: Double               // m/s
-  gait: Gait
-  confidence: Double             // 0–1, how sure are we of this position
-  sources: [PositionSource]      // which beacons contributed
+### `RiderState` ✅
+Current estimated position and motion state, produced by `PositionEngine` each update cycle.
 
-PositionSource
-  beacon: BeaconMapping
-  rssi: Int
-  estimatedDistance: Double
-
-MovementEvent
-  movement: Movement
-  calledAt: TimeInterval         // when the audio played
-  riderPosition: ArenaPoint      // where the rider was when it triggered
-  riderHeading: Double
-  riderVelocity: Double
-  distanceFromLetter: Double     // how far from the trigger letter when called
-
-GaitSegment
-  gait: Gait
-  startTime: TimeInterval
-  endTime: TimeInterval
-  averageVelocity: Double
-  strideCount: Int?              // if stride detection is reliable
+```swift
+struct RiderState {
+    let position: CGPoint?    // (x, y) in meters; nil if no fix
+    let nearestLetter: ArenaLetter?
+    let nearestDistance: Double?
+}
 ```
 
 ---
 
-## Settings / Preferences
+## Rider / Horse Entities — 🔲 Planned, Not Yet Implemented
 
+The following entities are fully designed but have no Swift code yet. They are targeted for Sprint 4.
+
+### `Rider` 🔲
+```
+Rider
+  id: UUID
+  name: String
+  preferredVoice: VoiceConfig
+  defaultArena: ArenaConfiguration?
+  defaultHorse: Horse?
+```
+Single-user for MVP (no accounts, no cloud sync).
+
+### `Horse` 🔲
+```
+Horse
+  id: UUID
+  name: String
+  breed: String?
+  gaitProfiles: [GaitProfile]   // one per arena
+```
+
+### `GaitProfile` 🔲
+Per-horse, per-arena motion signature. Stride length and gait patterns vary by horse and arena.
+
+```
+GaitProfile
+  id: UUID
+  horse: Horse
+  arena: ArenaConfiguration
+  walkStrideLength: Double      // meters
+  trotStrideLength: Double
+  canterStrideLength: Double
+  walkSignature: IMUSignature
+  trotSignature: IMUSignature
+  canterSignature: IMUSignature
+  lastUpdated: Date
+```
+
+### `IMUSignature` 🔲
+Serialized reference waveform for gait classification.
+
+```
+IMUSignature
+  sampleRate: Int               // Hz (50)
+  dominantFrequency: Double     // Hz — distinguishes gaits
+  amplitudeRange: (min, max)
+  templateData: Data            // serialized reference waveform
+```
+
+---
+
+## Settings
+
+### `VoicePreference` ✅
+```swift
+// Persisted in UserDefaults
+struct VoicePreference {
+    var voiceIdentifier: String?  // AVSpeechSynthesisVoice identifier
+    var rate: Float               // speech rate 0.0–1.0
+}
+```
+
+### `AppSettings` 🔲
 ```
 AppSettings
-  preferredVoice: VoiceConfig
-  offCourseAssist: Bool          // default: false
-  competitionCountdownAudio: Bool // "30 seconds", "15 seconds" announcements
+  offCourseAssist: Bool         // default: false (deferred feature)
+  competitionCountdownAudio: Bool
   language: Locale
-
-VoiceConfig
-  voiceIdentifier: String        // AVSpeechSynthesisVoice identifier
-  rate: Float                    // speech rate 0.0–1.0
-  pitchMultiplier: Float         // default 1.0
 ```
 
 ---
 
-## Test Import
+## Test Import — 🔲 Planned (Sprint 3)
 
-### Import Sources
+### `ImportSource`
 ```
-TestImport
-  source: ImportSource
-  rawText: String                // extracted text before parsing
-  parsedMovements: [Movement]    // result of parsing
-  needsReview: Bool              // true if parser confidence is low on any movement
-  importDate: Date
-
 ImportSource
-  case pdf(url: URL)             // PDF file from Files app, email, Safari download
-  case camera                    // scanned with VisionKit document camera
-  case manual                    // typed in by user (fallback)
-  case bundled                   // shipped with the app
+  case pdf(url: URL)     // PDFKit text extraction
+  case camera            // VisionKit document scan + Vision OCR
+  case manual            // user-typed fallback
 ```
 
-### PDF Import Flow
-1. User taps "Add Test" → "Import from PDF"
-2. iOS document picker opens (Files app, iCloud, email attachments)
-3. **PDFKit** extracts text from the digital PDF (no OCR needed — USDF PDFs have real text layers)
-4. Parser extracts: test name, organization, level, arena size, and movement list
-5. User reviews parsed movements, can edit any that parsed incorrectly
-6. Save to My Tests
+**PDF Import Flow**: User selects PDF from Files app → PDFKit extracts text → parser finds movement lines by regex → user reviews parsed output → save to `Documents/tests/`
 
-### Camera Scan Flow
-1. User taps "Add Test" → "Scan with Camera"
-2. **VisionKit VNDocumentCameraViewController** opens — built-in scanner UI
-3. User photographs the test sheet (auto-crops, perspective correction)
-4. **Vision VNRecognizeTextRequest** (`.accurate` mode) extracts text with bounding boxes
-5. Same parser runs on extracted text
-6. User reviews and corrects → save
-
-### Test Sheet Format (Highly Consistent)
-USDF traditional and WDAA western dressage tests follow the same structure:
-```
-Movement line format:
-  "{number}. {letter(s)}   {directive text}"
-
-Examples:
-  "1. A    Enter working trot"
-  "3. C    Track left"
-  "5. E    Circle left 20 meters"
-  "7. K-X-M  Change rein, free walk"
-  "9. Between C & M  Working canter left lead"
-```
-
-### Parsing Strategy
-- **Simple cases** (single letter): Regex `^(\d+)\.\s+([A-Z])\s+(.+)$` → sequence, letter, directive
-- **Letter ranges** (K-X-M): Split on hyphens, first letter is approach, last is completion
-- **Compound locations** ("Between C & M"): Map to midpoint between the two letters
-- **Gait inference**: Keyword scan for "walk", "trot", "canter", "halt", "jog", "lope" in directive text
-- **Heading inference**: Keywords like "track left", "track right", "circle left", "change rein" → derive expected direction
-
-### Review Screen
-After parsing, show the movement list with confidence indicators:
-- ✅ High confidence — parsed cleanly
-- ⚠️ Needs review — ambiguous letter or directive (highlighted for user to tap and correct)
-- User can edit trigger letter, spoken text, or expected gait for any movement
-- "Looks good" → save
+**Parser approach**: Regex `^(\d+)\.\s+([A-Z])\s+(.+)$` for single-letter movements; special handling for ranges (K-X-M), "between" positions, gait keyword extraction.
 
 ---
 
-## Storage Notes
+## Storage
 
-- **Local-first**: All data on device using SwiftData (Core Data successor)
-- **No cloud sync for MVP** — avoids account creation friction
-- **Test definitions**: Bundled in app or downloaded from a test catalog
-- **Position logs**: Can get large (1 sample/sec × 7 min = 420 samples per session). Store recent sessions, auto-prune older ones, option to export.
-- **Calibration data**: Small, keep indefinitely per arena
-- **Gait profiles**: Refine over time — each ride updates the horse's stride/gait model with new data
+- **Local-first**: all data on device
+- **Current implementation**: UserDefaults + JSON for `BeaconCalibration` and test data; CSV for session logs
+- **Planned**: SwiftData migration (deferred — current JSON approach is sufficient for MVP)
+- **No cloud sync for MVP**: avoids account creation friction
+- **Session logs**: stored as CSV files in Documents; can grow large (1 sample/sec × 7 min = ~420 rows/session); auto-prune or export options planned for Sprint 4

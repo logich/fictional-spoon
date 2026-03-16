@@ -79,9 +79,26 @@ Diagnostic UI accessible from HomeView. Shows:
 
 ---
 
-## Next steps for an implementing agent
+---
 
-1. **Discover real major/minor values** — run the app on device, open Beacon Diagnostic, tap Start, record the major/minor pairs from the iBeacon section
-2. **Update `ArenaConfiguration.prototype`** — replace the placeholder major/minor values with the real ones, assigning each to the correct arena letter (A, E, C, B)
-3. **Remove placeholder comment** from `ArenaConfiguration.swift` once real values are in place
-4. **Consider persisting arena configuration** — currently `prototype` is a compile-time constant; if the user wants to support multiple arenas or reconfigure letter assignments without a rebuild, this needs a settings/storage layer
+## Field Test Results — March 2026
+
+**Environment**: Indoor arena, metal building (Linda's barn)
+**Beacons used**: 4 (A, E, C, B only)
+**Result**: **4 beacons are insufficient in a metal building.**
+
+Metal structure multipath reflections made RSSI readings too noisy for stable trilateration with only 4 anchors. Position estimates were unstable for reliable movement triggering.
+
+**Decision: 8 beacons required** — one at each perimeter letter (A, K, E, H, C, M, B, F).
+
+Full test details and algorithm findings: see `TEST-RESULTS.md`.
+Raw sensor logs: see `field-data/2026-03-indoor-metal/`.
+
+---
+
+## Next Steps for an Implementing Agent
+
+1. **Purchase 4 additional beacons** — 4 more Kontakt Anchor Beacon 2 units (or weatherproof production equivalent) to reach the required 8
+2. **Discover major/minor values** — power on all 8 beacons, open Beacon Diagnostic on a physical device, record the major/minor pair shown for each BLE device ID (C01U, U01V, P01V, J01U, plus 4 new units)
+3. **Update `ArenaConfiguration`** — replace `prototype` with a full 8-beacon production configuration assigning each major/minor pair to its arena letter (A, K, E, H, C, M, B, F)
+4. **Persist arena configuration** — currently `prototype` is a compile-time constant. Sprint 4 adds named arena profiles with saved calibration; configuration will move to a settings/storage layer at that point.

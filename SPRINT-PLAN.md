@@ -1,93 +1,32 @@
-# Dressage Caller — Unified Project Sprint Plan
-
-**Created:** 2026-03-09
-**Context:** All P0 bugs from REVIEW.md are resolved. Kontakt.io beacons arriving for comparison testing. Goal: take the app from working prototype to competition-ready product, sprint by sprint.
+# Dressage Caller — Development Plan
 
 ---
 
-## Completed (P0 — Done This Session)
-- ✅ RideSessionController wired to movement announcements
-- ✅ Beacon ranging stops on dismiss
-- ✅ CalibrationViewModel (timer captures reference type)
-- ✅ Audio background mode in UIBackgroundModes
-- ✅ Voice picker with premium/enhanced auto-selection
-- ✅ Movement path drawn on arena canvas (line, circle, track)
-- ✅ Progress bar fills to 100% on test complete
-- ✅ End Ride button resets test
+## Completed — Sprints 1 & 2 (March 2026)
+
+All P0 bugs from `REVIEW.md` are resolved. The app builds, runs on device, and performs the core calling function.
+
+| Sprint | Theme | Completed |
+|--------|-------|-----------|
+| P0 pre-work | Critical bugs | RideSessionController wired to movements, beacon ranging stops on dismiss, CalibrationViewModel timer fix, audio background mode |
+| Sprint 1 | Ready to Ride Reliably | Stale beacon eviction, MotionService thread fix, idle timer, look-ahead timing, background auth UX banner, "test complete" announcement |
+| Sprint 2 | Solid Foundation | `[ArenaLetter: Double]` calibration keys, BeaconCalibration persistence, Codable test types, SessionLogger async I/O, ShareLink, RideSession service refactor |
 
 ---
 
-## Sprint 1 — "Ready to Ride Reliably"
-**Theme:** Close the remaining gaps that cause incorrect behaviour on a real ride.
-**Field test:** Yes — take Kontakt.io beacons to barn after this sprint.
-**Effort:** Medium (~1 week)
+## Prerequisites Before Sprint 3 Field Testing
 
-| Item | Source | Effort |
-|------|--------|--------|
-| ✅ Stale beacon eviction: filter `lastSeen` > 3s in `BeaconRangingService.didRange` | REVIEW #7 P1 | S |
-| ✅ MotionService: remove redundant `Task @MainActor` in CMMotionManager callback | REVIEW #8 P1 | XS |
-| ✅ Idle timer disabled when ride starts, restored on End Ride | REVIEW #17 P3 | XS |
-| ✅ Look-ahead timing: velocity-based ETA in `RideSessionController.checkAndAnnounce` | REVIEW #5 P1 | M |
-| ✅ Background auth UX: banner + Open Settings when `.authorizedWhenInUse` in `RideView` | REVIEW #10 P1 | S |
-| ✅ "Test complete" spoken announcement + chime after final movement | UX-FLOW §9 | S |
+These must be resolved before any arena field testing of Sprint 3 features:
 
-**Dependencies:**
-- `PositionEngine.velocity` is already `private(set)` — look-ahead can use it directly
-- Stale eviction and idle timer are independent, can land in any order
-
-**Key files:**
-- `DressageCaller/Services/BeaconRangingService.swift` — stale eviction
-- `DressageCaller/Services/RideSessionController.swift` — look-ahead timing, test complete
-- `DressageCaller/Services/MotionService.swift` — thread hop fix
-- `DressageCaller/Views/RideView.swift` — idle timer, auth banner
-
-**Verification:**
-1. Remove power from one beacon mid-walk → drops from canvas within 3s
-2. Ride at trot → movements called ~2 strides before the letter
-3. Deny Always location → red banner appears with Open Settings link
-4. Screen stays on for 10+ minutes during active ride
-5. After final movement → app speaks "Test complete" and plays chime
-
----
-
-## Sprint 2 — "Solid Foundation"
-**Theme:** Architectural cleanup that all persistence, post-ride, and Live Activity features depend on. No new UX — behaviour identical before and after.
-**Field test:** Yes — regression test only.
-**Effort:** Medium-Large (~1–2 weeks)
-
-| Item | Source | Effort |
-|------|--------|--------|
-| ✅ `BeaconCalibration.readings` → `[ArenaLetter: Double]` (type-safe keys) | REVIEW #14 P2 | XS |
-| ✅ Persist `BeaconCalibration` to UserDefaults as JSON (load on startup) | REVIEW #16 P3 | S |
-| ✅ `DressageTest`, `Movement`, `MovementLocation`, `PathShape` Codable conformance | REVIEW #12 P2 | S |
-| ✅ `SessionLogger` async I/O: buffer rows, flush every 3s on background actor | REVIEW #9 P1 | S |
-| ✅ Replace `ShareSheet` with `ShareLink` | REVIEW #13 P2 | XS |
-| ✅ Extract `RideSession: @Observable` class owning all ride services; pass into `RideView` | REVIEW #11 P2 | M |
-
-**Dependencies (must sequence in order):**
-1. `[ArenaLetter: Double]` (#14) before persistence (#16) — changes serialisation format
-2. Codable (#12) before arena profiles (Sprint 4) and Live Activity (Sprint 5)
-3. `RideSession` (#11) before timing slider and practice mode (Sprint 3)
-
-**Key files:**
-- `DressageCaller/Models/BeaconCalibration.swift` — key type + persistence
-- `DressageCaller/Models/DressageTest.swift` — Codable
-- `DressageCaller/Models/SampleTests.swift` — update for Codable
-- `DressageCaller/Services/SessionLogger.swift` — async I/O
-- `DressageCaller/Views/RideView.swift` — receives RideSession instead of creating services
-- `DressageCaller/Views/HomeView.swift` — creates and owns RideSession
-- `DressageCaller/Views/ShareSheet.swift` — delete; replace with ShareLink inline
-
-**Verification:**
-1. Complete calibration walk → force-quit → relaunch → calibration data restored
-2. Navigate in/out of ride three times → no service state leaks, ranging restarts cleanly
-3. `JSONEncoder().encode(SampleTests.trainingLevel1)` round-trips without loss
-4. Zero new Swift 6 strict-concurrency warnings
+- [ ] Purchase 4 additional Kontakt Anchor Beacon 2 units (or production weatherproof equivalent) — 4 total in hand, **8 required**
+- [ ] Run Beacon Diagnostic on device with all 8 beacons powered — record real major/minor values for each device ID
+- [ ] Update `ArenaConfiguration` from 4-beacon placeholder to 8-beacon production config
+- [ ] Run Sprint 1 & 2 verification checklist (`VERIFICATIONS.md`) once 8-beacon config is in place
 
 ---
 
 ## Sprint 3 — "Competition Day UX"
-**Theme:** The ride experience from UX-FLOW.md §6–9. Bell, countdown, timing control, practice mode, movement preview. This is what makes it feel like a real caller.
+**Theme:** The ride experience from UX-FLOW.md §6–9. Bell, countdown, timing control, practice mode, movement preview. Makes it feel like a real caller.
 **Field test:** Yes — first full competition-simulation ride.
 **Effort:** Large (~2 weeks)
 
@@ -102,7 +41,7 @@
 | `TestLibrary`: persist imported tests as JSON in `Documents/tests/` | Test import | XS |
 
 **Dependencies:**
-- `RideSession` (#11, Sprint 2) required for timing slider to cleanly set `triggerDistance`
+- `RideSession` (Sprint 2) required for timing slider to cleanly set `triggerDistance`
 - Practice mode pause uses `MotionService.motionState` — available via `RideSession`
 - Bell audio: bundle a `.caf` file; play with `AVAudioPlayer` before handing off to `AVSpeechSynthesizer`
 
@@ -139,8 +78,8 @@
 | Camera OCR import: photograph printed test → Vision `VNRecognizeTextRequest` → same parser pipeline | Test import | M |
 
 **Dependencies:**
-- Arena profiles require `BeaconCalibration` Codable + persisted (Sprint 2)
-- Post-ride summary requires `RideSession` (Sprint 2) accumulating gait time during ride
+- Arena profiles require `BeaconCalibration` Codable + persisted (Sprint 2 ✅)
+- Post-ride summary requires `RideSession` (Sprint 2 ✅) accumulating gait time during ride
 - Home screen replaces `HomeView.swift` entirely — implement as new file, swap at app root
 
 **Key files:**
@@ -154,7 +93,7 @@
 **Verification:**
 1. Two arena profiles with different calibrations — switching retains each calibration independently
 2. Two horse profiles — horse name shows correctly in RideView per selection
-3. Home screen shows last-used test highlighted; beacon status "4/4 connected" or warning
+3. Home screen shows last-used test highlighted; beacon status "8/8 connected" or warning
 4. Complete a test → post-ride summary appears automatically with correct gait breakdown
 5. Simulator: mock rider triggers movement announcements in correct sequence
 6. VoiceOver: arena canvas announces nearest letter; all buttons have labels
@@ -174,11 +113,11 @@
 | Path replay: rider's actual path on arena canvas, gait-colored, tappable markers | UX-FLOW §10 | M |
 
 **Dependencies:**
-- Live Activity needs `ActivityKit` widget extension in `project.yml` + `DressageTest` Codable (Sprint 2)
-- Live Activity data sourced from `RideSession` (Sprint 2 #11)
+- Live Activity needs `ActivityKit` widget extension in `project.yml` + `DressageTest` Codable (Sprint 2 ✅)
+- Live Activity data sourced from `RideSession` (Sprint 2 ✅)
 - Onboarding saves result to named arena profile (Sprint 4)
 - Path replay uses `SessionLogger` data keyed to a `RideSession` + post-ride summary (Sprint 4)
-- Test target added to `project.yml`; pure functions in `PositionEngine` and `BeaconCalibration` extracted for testing
+- Test target added to `project.yml`
 
 **Key files:**
 - New widget extension target in `project.yml`
@@ -199,23 +138,53 @@
 ## Sprint Dependency Chain
 
 ```
-Sprint 1: velocity(done) → look-ahead
-Sprint 2: [ArenaLetter] → persist calibration
-          Codable → arena profiles (S4), Live Activity (S5)
-          RideSession → timing slider (S3), practice mode (S3), post-ride (S4), Live Activity (S5)
-Sprint 3: RideSession(S2) → timing slider, practice mode
-Sprint 4: Codable+persist(S2), RideSession(S2) → arena profiles, post-ride
+Sprint 1: (complete) velocity → look-ahead
+Sprint 2: (complete) [ArenaLetter] → persist calibration
+                     Codable → arena profiles (S4), Live Activity (S5)
+                     RideSession → timing slider (S3), practice mode (S3), post-ride (S4), Live Activity (S5)
+Sprint 3: RideSession(S2✅) → timing slider, practice mode
+Sprint 4: Codable+persist(S2✅), RideSession(S2✅) → arena profiles, post-ride
           arena profiles(S4) → onboarding(S5)
           post-ride(S4) → path replay(S5)
-Sprint 5: widget extension → Live Activity, Watch (future)
+Sprint 5: widget extension → Live Activity, Watch (Sprint 6)
 ```
 
 ---
 
-## Deferred (Post-Sprint 5)
-- Apple Watch complication (shares widget extension from Sprint 5 — natural Sprint 6)
-- Off-course assist / re-orientation (UX-FLOW design decision: default off, needs field data first)
-- Recorded human caller voices premium feature (UX-FLOW §296)
-- Stride-based timing calibration per horse (UX-FLOW §284)
-- Multi-arena auto-detect by beacon UUID (UX-FLOW §253)
-- **Bundled test data**: Cannot bundle dressage tests in the app binary. Tests are copyrighted by USDF, USEF, FEI, and BD regardless of format (PDF, XML, text). Users obtain PDFs from their governing body; the app parses locally (fair use). Import flow (Sprint 3/4) is the only path.
+## Post-Sprint 5 — Production Roadmap
+
+### App Store Submission (after Sprint 5)
+- Privacy policy (location data usage — ranges beacons, no GPS, no cloud upload)
+- App Store screenshots: all required device sizes, including iPad if supported
+- App Review notes: explain the Bluetooth/location permissions usage clearly
+- Entitlements review: Background Modes (audio, location, bluetooth-central), ActivityKit
+- TestFlight external testing before full submission
+
+### Sprint 6 — Apple Watch Complication
+Natural extension of Sprint 5 widget work. The `ActivityKit` attribute types and Live Activity infrastructure are already in place. Watch complication shows current movement number and next text on the watch face — useful for riders who prefer a glance over reaching for the phone.
+
+### Sprint 7 — Recorded Human-Voice Caller
+Premium feature. Pre-recorded human voice files for each movement, selectable as an alternative to TTS. Requires:
+- Recording session with a native English-speaking caller
+- File storage strategy (bundled vs. downloadable)
+- Business model decision (one-time IAP vs. subscription)
+
+### Sprint 8 — Off-Course Assist
+Detect when the rider is significantly off the expected path and offer a verbal re-orientation cue ("You're approaching E — your next movement is at C, tracking left"). Needs field data from real test rides (Sprint 3+) to design a non-annoying trigger threshold.
+
+### Sprint 9 — USDF Partnership / Test Catalog
+Copyright-safe path to providing test content without requiring every user to import PDFs:
+- Contact USDF (copyright@usdf.org) about linking policy and potential data partnership
+- Contact WDAA for their Website Link Usage Policy
+- Explore app-level "guided download" that deep-links to the official PDF and auto-imports on return
+
+### Ongoing / Deferred
+- **Stride-based timing calibration per horse** — per-horse stride length from `GaitProfile` (Sprint 4 data model) refines look-ahead distance; accumulates over multiple rides
+- **Multi-arena auto-detect by beacon UUID** — if multiple arenas are configured, detect which arena the rider is in by which beacon cluster responds
+- **Full 20×60m arena support** — all 12 letters beaconed; tested on Linda's full-size arena configuration
+
+---
+
+## Copyright Note
+
+**Bundled test data is not possible.** USDF, USEF, FEI, and WDAA tests are copyrighted regardless of format (PDF, XML, text). The import flow (Sprint 3/4) is the only legal path for providing test content. Users obtain PDFs from their governing body; the app parses locally (fair use). The app must never host, cache, or redistribute test content on any server.
