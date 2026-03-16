@@ -25,11 +25,11 @@ All beacons were powered by USB battery packs, but different battery chemistries
 | A | **ESP32** (custom iBeacon firmware) | USB battery | Most stable RSSI in the dataset |
 | C | **ESP32** (custom iBeacon firmware) | USB battery | Stable; reference-quality readings |
 | B | **Flipper Zero** | USB battery | Different antenna and lower/inconsistent transmit power vs. ESP32 units; explains frequent RSSI dropout and wider variance on beacon B throughout the log |
-| E | **ESP32** (custom iBeacon firmware) | USB battery | Battery chemistry had difficulty supplying consistent current to the ESP32 at rest (low idle draw causes instability with some battery types); explains the late first appearance at t=76s and intermittent dropouts |
+| E | **ESP32** (custom iBeacon firmware) | USB battery | Standard Li-ion pack's current flow detection cut power intermittently — the ESP32's low idle draw falls below the battery controller's minimum threshold, causing it to shut off; explains the late first appearance at t=76s and intermittent dropouts |
 
 **Implication for data interpretation**: This was an all-prototype hardware test — 3× ESP32 with custom iBeacon firmware and 1× Flipper Zero. None of these readings are representative of a production Kontakt beacon deployment. B's antenna characteristics skew its ranging accuracy; E's power instability means its presence in the data is unreliable. The A and C readings are the most stable in this dataset.
 
-**For future tests**: Use a battery pack known to handle low-idle-current devices (or regulated bench supply) for the ESP32. The Flipper Zero is not a suitable production beacon — treat those readings as development noise only. Production testing requires Kontakt Anchor Beacon 2 units (or equivalent) for all positions.
+**For future tests**: Use a battery pack without auto-shutoff (or a regulated bench supply) for the ESP32 — standard Li-ion packs with low-current cutoff will drop power when the ESP32 idles below their detection threshold. The Flipper Zero is not a suitable production beacon — treat those readings as development noise only. Production testing requires Kontakt Anchor Beacon 2 units (or equivalent) for all positions.
 
 ## Files
 
