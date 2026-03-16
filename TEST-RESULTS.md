@@ -8,7 +8,7 @@ This document records the outcomes of actual testing sessions. For the pre-test 
 
 ### Setup
 - **Date**: 2026-03-09
-- **Hardware**: 4× Kontakt Anchor Beacon 2, USB-powered
+- **Hardware**: 3× ESP32 (custom iBeacon firmware) + 1× Flipper Zero — all prototype hardware; see hardware table in `field-data/2026-03-indoor-metal/README.md`
 - **Environment**: Indoor arena, **metal building** (Linda's barn)
 - **Beacon placement**: Cardinal letters only — A, E, C, B
 - **Phone**: iPhone (pocket position during mounted tests)
@@ -19,7 +19,7 @@ Raw sensor logs are in `field-data/2026-03-indoor-metal/`. See `field-data/READM
 ### Results
 
 #### UUID Fix Verified
-The app was previously hardcoded to an Estimote UUID. After correcting to the Kontakt factory default, all 4 beacons were detected via CoreBluetooth (`FE6A` service scan) and CoreLocation (iBeacon ranging). BLE device IDs confirmed: C01U, U01V, P01V, J01U.
+The app was previously hardcoded to an Estimote UUID. After correcting to the Kontakt factory default UUID (`F7826DA6-4FA2-4E98-8024-BC5B71E0893E`), all 4 prototype beacons were detected via CoreLocation (iBeacon ranging). The ESP32 and Flipper Zero units were each flashed with firmware advertising this UUID.
 
 #### 4-Beacon Trilateration — Insufficient
 **Finding: 4 beacons at cardinal letters (A, E, C, B) are not sufficient for reliable position detection in this metal building.**

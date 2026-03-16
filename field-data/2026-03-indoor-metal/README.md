@@ -9,10 +9,25 @@ Raw sensor data from the first arena field tests of the Dressage Caller app.
 | Date | 2026-03-09 |
 | Environment | Indoor arena, **metal building** |
 | Arena size | 20×60m (standard/full) |
-| Beacons | 4× Kontakt Anchor Beacon 2, USB-powered |
+| Beacons | Mixed hardware — see hardware table below |
 | Beacon placement | Cardinal letters only: A (10,0), E (0,30), C (10,60), B (20,30) |
 | Phone position | Rider's jacket pocket |
 | Software | DressageCaller prototype, Sprints 1 & 2 complete |
+
+## Hardware
+
+This test used **mixed hardware** across the four beacon positions — not a uniform set.
+
+| Letter | Hardware | Power | Notes |
+|--------|----------|-------|-------|
+| A | **ESP32** (custom iBeacon firmware) | USB | Most stable RSSI in the dataset |
+| C | **ESP32** (custom iBeacon firmware) | USB | Stable; reference-quality readings |
+| B | **Flipper Zero** | Internal | Different antenna and lower/inconsistent transmit power vs. ESP32 units; explains frequent RSSI dropout and wider variance on beacon B throughout the log |
+| E | **ESP32** (custom iBeacon firmware) | Battery | Battery had difficulty providing consistent current to the ESP32 at rest (low idle draw causes instability with some battery chemistries); explains the late first appearance at t=76s and intermittent dropouts |
+
+**Implication for data interpretation**: This was an all-prototype hardware test — 3× ESP32 with custom iBeacon firmware and 1× Flipper Zero. None of these readings are representative of a production Kontakt beacon deployment. B's antenna characteristics skew its ranging accuracy; E's power instability means its presence in the data is unreliable. The A and C readings (USB-powered ESP32) are the most stable in this dataset.
+
+**For future tests**: Use USB power (or a well-matched regulated supply) for the ESP32. The Flipper Zero is not a suitable production beacon — treat those readings as development noise only. Production testing requires Kontakt Anchor Beacon 2 units (or equivalent) for all positions.
 
 ## Files
 
@@ -53,7 +68,7 @@ Raw sensor data from the first arena field tests of the Dressage Caller app.
 - **Position jitter**: raw `pos_x/pos_y` varies by 2–5m between consecutive 1-second samples even when rider is stationary (visible at t=74–76s where motion_state=stationary but raw pos still fluctuating slightly)
 - **Motion gating works**: `filtered_pos_x/y` holds stable during stationary periods (t=74–116s near X, showing consistent ~11.5, 29.3)
 - **Path is traceable** despite noise: the filtered position path roughly follows the expected perimeter route and centerline pass
-- **E beacon appears late** (t=76s) — likely powered on mid-session or took time to be detected
+- **E beacon appears late** (t=76s) — ESP32 battery power instability; the battery struggled to supply consistent current to the low-idle-draw ESP32, causing delayed startup
 
 ## Conclusions from This Data
 
