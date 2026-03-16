@@ -22,6 +22,12 @@ targets:
         NSMotionUsageDescription: Dressage Caller uses motion data to stabilise position tracking and detect your gait.
         UIFileSharingEnabled: true
         LSSupportsOpeningDocumentsInPlace: true
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Dressage Test PDF
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - com.adobe.pdf
         UIBackgroundModes:
           - bluetooth-central
           - location
@@ -38,6 +44,18 @@ targets:
       - sdk: CoreLocation.framework
       - sdk: AVFoundation.framework
       - sdk: CoreMotion.framework
+      - sdk: CoreBluetooth.framework
+
+  DressageCallerTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: DressageCallerTests
+    dependencies:
+      - target: DressageCaller
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
 
 schemes:
   DressageCaller:
@@ -46,3 +64,7 @@ schemes:
         DressageCaller: all
     run:
       config: Debug
+    test:
+      config: Debug
+      targets:
+        - DressageCallerTests

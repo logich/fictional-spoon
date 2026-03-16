@@ -39,16 +39,21 @@ struct ArenaConfiguration: Sendable {
     }
 
     /// Default prototype configuration: 4 beacons at A, E, C, B in a 20×60m arena.
-    /// Uses the Kontakt.io factory-default iBeacon UUID (f7826da6-...).
-    /// Major/minor values below are placeholders — run Beacon Diagnostic to discover the real ones.
+    // Placeholder major/minor values — update after running Beacon Diagnostic
     static let prototype = ArenaConfiguration(
-        beaconUUID: UUID(uuidString: "F7826DA6-4FA2-4E98-8024-BC5B71E0893E")!,
+        beaconUUID: UUID(uuidString: "F7826DA6-4FA2-4E98-8024-BC5B71E0893E")!, // Kontakt factory default
         arenaSize: .standard,
         beaconMappings: [
-            BeaconMapping(letter: .A, major: 1, minor: 0),
-            BeaconMapping(letter: .E, major: 1, minor: 1),
-            BeaconMapping(letter: .C, major: 1, minor: 2),
-            BeaconMapping(letter: .B, major: 1, minor: 3),
+            // Kontakt hardware
+            BeaconMapping(letter: .H, major: 1, minor: 0),
+            BeaconMapping(letter: .M, major: 1, minor: 1),
+            BeaconMapping(letter: .K, major: 1, minor: 2),
+            BeaconMapping(letter: .F, major: 1, minor: 3),
+            // ESP32 devices
+            BeaconMapping(letter: .A, major: 1, minor: 4),
+            BeaconMapping(letter: .E, major: 1, minor: 5),
+            BeaconMapping(letter: .C, major: 1, minor: 6),
+            BeaconMapping(letter: .B, major: 1, minor: 7),
         ]
     )
 

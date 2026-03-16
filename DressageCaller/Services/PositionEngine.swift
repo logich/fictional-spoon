@@ -1,6 +1,6 @@
 import Foundation
 
-/// Estimates rider position from beacon distances using least-squares trilateration,
+/// Estimates rider position from beacon RSSI using proximity-weighted centroid,
 /// constrained by accelerometer-derived motion state.
 @MainActor
 @Observable
@@ -10,15 +10,22 @@ final class PositionEngine {
     private let configuration: ArenaConfiguration
     private let calibration: BeaconCalibration
 
-    /// Number of iterations for the non-linear least-squares solver.
-    private let solverIterations = 10
-
     /// Last accepted position (after motion filtering).
     private var lastPosition: CGPoint?
     /// Timestamp of last accepted position.
     private var lastUpdateTime: Date?
     /// Smoothed velocity vector (meters/sec) for direction continuity and look-ahead.
     private(set) var velocity: CGVector = .zero
+
+    // MARK: - Letter-change hysteresis
+    private var pendingLetter: ArenaLetter? = nil
+    private var pendingLetterCount = 0
+    // Simulator advances one letter per tick — no hysteresis needed there.
+    #if targetEnvironment(simulator)
+    private let letterHysteresisThreshold = 1
+    #else
+    private let letterHysteresisThreshold = 3
+    #endif
 
     init(configuration: ArenaConfiguration = .prototype, calibration: BeaconCalibration = .uncalibrated) {
         self.configuration = configuration
@@ -28,38 +35,16 @@ final class PositionEngine {
     /// Update the position estimate from the latest beacon readings,
     /// constrained by the current motion state from the accelerometer.
     func update(from beacons: [DetectedBeacon], motionState: MotionState) {
-        // When calibrated, compute distance from RSSI using the measured TX power.
-        // Otherwise fall back to CoreLocation's accuracy (distance estimate).
-        let valid: [DetectedBeacon]
-        if calibration.readings.isEmpty {
-            valid = beacons.filter { $0.accuracy > 0 }
-        } else {
-            valid = beacons.filter { $0.rssi != 0 }.map { beacon in
-                let dist = calibration.estimatedDistance(rssi: beacon.rssi, for: beacon.letter)
-                return DetectedBeacon(
-                    letter: beacon.letter,
-                    rssi: beacon.rssi,
-                    accuracy: dist,
-                    proximity: beacon.proximity,
-                    lastSeen: beacon.lastSeen
-                )
-            }
-        }
+        // Discard beacons with rssi == 0 (no reading); keep all negative RSSI values.
+        let valid = beacons.filter { $0.rssi < 0 }
 
         guard !valid.isEmpty else {
             riderState = .unknown
             return
         }
 
-        // Raw trilateration estimate
-        let raw: CGPoint
-        if valid.count >= 3 {
-            raw = trilaterate(beacons: valid)
-        } else if valid.count == 2 {
-            raw = bilateralEstimate(beacons: valid)
-        } else {
-            raw = singleBeaconEstimate(beacon: valid[0])
-        }
+        // Proximity-weighted centroid — no distance conversion needed
+        let raw = weightedCentroid(beacons: valid)
 
         // Clamp to arena bounds
         let clamped = CGPoint(
@@ -79,9 +64,20 @@ final class PositionEngine {
         // Find nearest letter
         let (nearest, distance) = findNearestLetter(to: filtered)
 
+        // Letter-change hysteresis — require 3 consecutive updates before committing
+        if nearest == pendingLetter {
+            pendingLetterCount += 1
+        } else {
+            pendingLetter = nearest
+            pendingLetterCount = 1
+        }
+        let committedLetter = pendingLetterCount >= letterHysteresisThreshold
+            ? nearest
+            : riderState.nearestLetter
+
         // Determine confidence
         let confidence: RiderState.Confidence
-        if valid.count >= 3 && valid.allSatisfy({ $0.accuracy < 10 }) {
+        if valid.count >= 3 && valid.allSatisfy({ $0.rssi > -80 }) {
             confidence = .strong
         } else if valid.count >= 1 {
             confidence = .weak
@@ -91,7 +87,7 @@ final class PositionEngine {
 
         riderState = RiderState(
             position: filtered,
-            nearestLetter: nearest,
+            nearestLetter: committedLetter,
             distanceToNearest: distance,
             confidence: confidence
         )
@@ -183,128 +179,24 @@ final class PositionEngine {
         }
     }
 
-    // MARK: - Trilateration (3+ beacons)
+    // MARK: - Proximity-weighted centroid
 
-    /// Least-squares trilateration via iterative Gauss-Newton.
-    private func trilaterate(beacons: [DetectedBeacon]) -> CGPoint {
-        let points = beacons.map { $0.letter.position(for: configuration.arenaSize) }
-        let distances = beacons.map(\.accuracy)
-        let weights = distances.map { 1.0 / max($0 * $0, 0.25) }
-
-        // Seed: weighted centroid
-        var x = 0.0, y = 0.0, tw = 0.0
-        for (i, p) in points.enumerated() {
-            let w = weights[i]
-            x += w * p.x
-            y += w * p.y
-            tw += w
+    /// Position estimate as the RSSI-weighted centroid of visible beacons.
+    /// weight = 10^((rssi + 50) / 20) — stronger signal → much higher weight.
+    /// Works for 1, 2, or 3+ beacons without branching.
+    private func weightedCentroid(beacons: [DetectedBeacon]) -> CGPoint {
+        var wx = 0.0, wy = 0.0, wSum = 0.0
+        for b in beacons {
+            let w = pow(10.0, (Double(b.rssi) + 50.0) / 20.0)
+            let pos = b.letter.position(for: configuration.arenaSize)
+            wx += w * Double(pos.x)
+            wy += w * Double(pos.y)
+            wSum += w
         }
-        x /= tw
-        y /= tw
-
-        // Gauss-Newton iterations
-        for _ in 0..<solverIterations {
-            var jtWj00 = 0.0, jtWj01 = 0.0, jtWj11 = 0.0
-            var jtWr0 = 0.0, jtWr1 = 0.0
-
-            for (i, p) in points.enumerated() {
-                let ddx = x - p.x
-                let ddy = y - p.y
-                let dist = max((ddx * ddx + ddy * ddy).squareRoot(), 0.001)
-                let residual = distances[i] - dist
-
-                let jx = ddx / dist
-                let jy = ddy / dist
-                let w = weights[i]
-
-                jtWj00 += w * jx * jx
-                jtWj01 += w * jx * jy
-                jtWj11 += w * jy * jy
-                jtWr0 += w * jx * residual
-                jtWr1 += w * jy * residual
-            }
-
-            let det = jtWj00 * jtWj11 - jtWj01 * jtWj01
-            guard abs(det) > 1e-12 else { break }
-
-            let deltaX = (jtWj11 * jtWr0 - jtWj01 * jtWr1) / det
-            let deltaY = (jtWj00 * jtWr1 - jtWj01 * jtWr0) / det
-
-            x -= deltaX
-            y -= deltaY
-
-            if deltaX * deltaX + deltaY * deltaY < 0.001 { break }
+        guard wSum > 0 else {
+            return CGPoint(x: configuration.arenaSize.width / 2, y: configuration.arenaSize.length / 2)
         }
-
-        return CGPoint(x: x, y: y)
-    }
-
-    // MARK: - Two-beacon estimate
-
-    private func bilateralEstimate(beacons: [DetectedBeacon]) -> CGPoint {
-        let p1 = beacons[0].letter.position(for: configuration.arenaSize)
-        let p2 = beacons[1].letter.position(for: configuration.arenaSize)
-        let d1 = beacons[0].accuracy
-        let d2 = beacons[1].accuracy
-
-        let dx = p2.x - p1.x
-        let dy = p2.y - p1.y
-        let dist12 = max((dx * dx + dy * dy).squareRoot(), 0.001)
-
-        let a = (d1 * d1 - d2 * d2 + dist12 * dist12) / (2 * dist12)
-        let hSq = d1 * d1 - a * a
-
-        let mx = p1.x + a * dx / dist12
-        let my = p1.y + a * dy / dist12
-
-        if hSq <= 0 {
-            return CGPoint(x: mx, y: my)
-        }
-
-        let h = hSq.squareRoot()
-        let nx = -dy / dist12
-        let ny = dx / dist12
-
-        let c1 = CGPoint(x: mx + h * nx, y: my + h * ny)
-        let c2 = CGPoint(x: mx - h * nx, y: my - h * ny)
-
-        let center = CGPoint(x: configuration.arenaSize.width / 2,
-                             y: configuration.arenaSize.length / 2)
-
-        func distToCenter(_ p: CGPoint) -> Double {
-            let ddx = p.x - center.x
-            let ddy = p.y - center.y
-            return ddx * ddx + ddy * ddy
-        }
-
-        func isInBounds(_ p: CGPoint) -> Bool {
-            p.x >= 0 && p.x <= configuration.arenaSize.width &&
-            p.y >= 0 && p.y <= configuration.arenaSize.length
-        }
-
-        let c1In = isInBounds(c1)
-        let c2In = isInBounds(c2)
-
-        if c1In && !c2In { return c1 }
-        if c2In && !c1In { return c2 }
-
-        return distToCenter(c1) < distToCenter(c2) ? c1 : c2
-    }
-
-    // MARK: - Single-beacon estimate
-
-    private func singleBeaconEstimate(beacon: DetectedBeacon) -> CGPoint {
-        let beaconPos = beacon.letter.position(for: configuration.arenaSize)
-        let center = CGPoint(x: configuration.arenaSize.width / 2,
-                             y: configuration.arenaSize.length / 2)
-
-        let dx = center.x - beaconPos.x
-        let dy = center.y - beaconPos.y
-        let dist = max((dx * dx + dy * dy).squareRoot(), 0.001)
-
-        let ratio = min(beacon.accuracy / dist, 1.0)
-        return CGPoint(x: beaconPos.x + dx * ratio,
-                       y: beaconPos.y + dy * ratio)
+        return CGPoint(x: wx / wSum, y: wy / wSum)
     }
 
     // MARK: - Nearest letter

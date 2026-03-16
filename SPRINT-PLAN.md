@@ -86,7 +86,8 @@
 
 ---
 
-## Sprint 3 — "Competition Day UX"
+## Sprint 3 — "Competition Day UX" ✅ COMPLETE
+**Code-complete:** 2026-03-10. Field verification pending — all 6 items in VERIFICATIONS.md.
 **Theme:** The ride experience from UX-FLOW.md §6–9. Bell, countdown, timing control, practice mode, movement preview. This is what makes it feel like a real caller.
 **Field test:** Yes — first full competition-simulation ride.
 **Effort:** Large (~2 weeks)
@@ -122,10 +123,51 @@
 
 ---
 
-## Sprint 4 — "Home Screen and Profiles"
+## Sprint 4 — "RF Positioning & 8 Beacons"
+**Theme:** Fix the positioning algorithm — the single largest blocker to a usable app. Current Gauss-Newton trilateration is failing in the metal barn (CL `accuracy` averages 14–23m). Replace with proximity-weighted centroid on smoothed RSSI + fingerprinting. Expand from 4 to 8 beacons.
+**Field test:** Yes — full arena ride with 8 beacons + new algorithm.
+**Effort:** Medium (code items) + hardware procurement/deployment
+
+| Item | Effort |
+|------|--------|
+| Verify/implement proximity-weighted centroid in `PositionEngine` (confirm `weight = 10^((RSSI+50)/20)`) | S |
+| Replace CL `accuracy` with smoothed raw RSSI as proximity weights — bypass CL distance model entirely | S |
+| Per-beacon RSSI EMA in `BeaconRangingService`: alpha=0.3 | S |
+| Letter-change hysteresis: 2–3s dominance before zone change | S |
+| Fix B beacon TX power (hardware: match RSSI at 1m to A/C/E within 2–3dB) | Hardware |
+| Fix E beacon power supply (hardware: stable connection for full ride) | Hardware |
+| Order + deploy 4 additional beacons at K, F, H, M | Hardware |
+| RSSI fingerprinting calibration walk: record 10s at each letter, store mean RSSI vector | M |
+| Calibration UI update: add fingerprinting walk after 1m reference RSSI walk | M |
+| Field test: full arena ride with 8 beacons + centroid algorithm | Field |
+
+**Dependencies:**
+- `BeaconCalibration.swift` — extend readings to include fingerprint vectors per letter
+- `PositionEngine.swift` — replace Gauss-Newton with centroid; use fingerprint matching when available
+- `BeaconRangingService.swift` — per-beacon RSSI EMA smoothing
+- `ArenaConfiguration.swift` — add K, F, H, M beacon mappings
+
+**Key files:**
+- `DressageCaller/Services/PositionEngine.swift`
+- `DressageCaller/Services/BeaconRangingService.swift`
+- `DressageCaller/Models/ArenaConfiguration.swift`
+- `DressageCaller/Models/BeaconCalibration.swift`
+- `DressageCaller/Views/CalibrationView.swift`
+
+**Verification:**
+1. Stand 1m from each beacon → RSSI within 2–3dB across all 8 beacons
+2. Walk arena end-to-end → centroid tracks position without collapsing to centreline
+3. E beacon runs full 10-min ride without dropout
+4. Fingerprint calibration: complete walk of all 12 letters, zones save successfully
+5. Field ride: nearest-letter detection correct ≥80% of time
+6. 8-beacon layout: confidence "strong" for ≥60% of readings
+
+---
+
+## Sprint 5 — "Home Screen and Profiles"
 **Theme:** Pre-ride flow from UX-FLOW.md §5. My Tests list, arena profiles, horse profiles, post-ride summary. A returning rider is ready to ride in one tap.
 **Field test:** Yes — first multi-session test with saved arena calibration.
-**Effort:** X-Large (~2 weeks; consider splitting horse profiles to Sprint 5 if needed)
+**Effort:** X-Large (~2 weeks; consider splitting horse profiles to Sprint 6 if needed)
 
 | Item | Source | Effort |
 |------|--------|--------|
@@ -135,7 +177,7 @@
 | Post-ride summary: duration, gait time breakdown, movements called count | UX-FLOW §10 | M |
 | Simulator: mock follows `DressageTest.movements` in sequence (not perimeter loop) | REVIEW #19 P3 | S |
 | Accessibility: arena canvas labels, control button labels, beacon status accessibility | REVIEW #15 P2 | M |
-| App icon redesign — current placeholder insufficient for App Store | Design | M |
+| App icon redesign — current icon exists but needs App Store quality artwork | Design | M |
 | Camera OCR import: photograph printed test → Vision `VNRecognizeTextRequest` → same parser pipeline | Test import | M |
 
 **Dependencies:**
@@ -161,7 +203,7 @@
 
 ---
 
-## Sprint 5 — "Polish, Tests, and Live Activity"
+## Sprint 6 — "Polish, Tests, and Live Activity"
 **Theme:** App Store quality. Lock screen Live Activity, first-time onboarding, unit tests, path replay.
 **Field test:** Yes — submit to TestFlight.
 **Effort:** X-Large (~2 weeks)
@@ -169,7 +211,7 @@
 | Item | Source | Effort |
 |------|--------|--------|
 | Lock screen Live Activity: movement number + next movement text | UX-FLOW §8 | L |
-| Unit tests: trilateration, motion filter, path loss, movement trigger | REVIEW #20 P3 | M |
+| Unit tests: centroid math, RSSI fingerprint distance matching, motion filter, movement trigger | REVIEW #20 P3 | M |
 | First-time onboarding: welcome, beacon placement guide, audio-guided calibration walk | UX-FLOW §1–3 | L |
 | Path replay: rider's actual path on arena canvas, gait-colored, tappable markers | UX-FLOW §10 | M |
 
@@ -189,7 +231,7 @@
 
 **Verification:**
 1. Start test, lock screen → Live Activity shows movement number + next text, updates as movements progress
-2. `xcodebuild test` passes: trilateration within 0.5m of ground truth, path loss within 5%
+2. `xcodebuild test` passes: centroid within 1 letter-width of ground truth, fingerprint matching accuracy ≥80%
 3. Fresh install → onboarding appears → complete calibration walk → arena profile saved → home screen
 4. Post-ride summary: tap a movement marker on path replay → shows directive text and timestamp
 5. App submits to TestFlight cleanly
@@ -201,13 +243,14 @@
 ```
 Sprint 1: velocity(done) → look-ahead
 Sprint 2: [ArenaLetter] → persist calibration
-          Codable → arena profiles (S4), Live Activity (S5)
-          RideSession → timing slider (S3), practice mode (S3), post-ride (S4), Live Activity (S5)
+          Codable → arena profiles (S5), Live Activity (S6)
+          RideSession → timing slider (S3), practice mode (S3), post-ride (S5), Live Activity (S6)
 Sprint 3: RideSession(S2) → timing slider, practice mode
-Sprint 4: Codable+persist(S2), RideSession(S2) → arena profiles, post-ride
-          arena profiles(S4) → onboarding(S5)
-          post-ride(S4) → path replay(S5)
-Sprint 5: widget extension → Live Activity, Watch (future)
+Sprint 4: centroid algorithm + 8 beacons → accurate positioning (blocker for all field tests)
+Sprint 5: Codable+persist(S2), RideSession(S2) → arena profiles, post-ride
+          arena profiles(S5) → onboarding(S6)
+          post-ride(S5) → path replay(S6)
+Sprint 6: widget extension → Live Activity, Watch (future)
 ```
 
 ---
@@ -219,3 +262,15 @@ Sprint 5: widget extension → Live Activity, Watch (future)
 - Stride-based timing calibration per horse (UX-FLOW §284)
 - Multi-arena auto-detect by beacon UUID (UX-FLOW §253)
 - **Bundled test data**: Cannot bundle dressage tests in the app binary. Tests are copyrighted by USDF, USEF, FEI, and BD regardless of format (PDF, XML, text). Users obtain PDFs from their governing body; the app parses locally (fair use). Import flow (Sprint 3/4) is the only path.
+
+---
+
+## Test Source URLs
+
+Users will be directed to download PDFs from their governing body. The import flow should link to these pages:
+
+| Organisation | URL |
+|---|---|
+| WDAA (Western Dressage Association of America) | https://www.westerndressageassociation.org/wdaa-tests |
+| FEI (Fédération Equestre Internationale) | https://inside.fei.org/fei/your-role/organisers/dressage/tests |
+| USDF (United States Dressage Federation) | https://www.usdf.org/downloads/forms/index.asp?TypePass=Tests |

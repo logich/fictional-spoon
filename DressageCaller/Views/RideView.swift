@@ -20,6 +20,9 @@ struct RideView: View {
             // Background location auth warning
             if beaconService.authorizationStatus == .authorizedWhenInUse {
                 authorizationBanner
+            } else if beaconService.authorizationStatus == .denied
+                        || beaconService.authorizationStatus == .restricted {
+                locationDeniedBanner
             }
 
             // Status bar
@@ -60,7 +63,7 @@ struct RideView: View {
                 ScrollView {
                     BeaconStatusView(
                         beacons: beaconService.detectedBeacons,
-                        expectedCount: session.configuration.beaconMappings.count
+                        expectedLetters: session.configuration.beaconMappings.map(\.letter)
                     )
                 }
                 .frame(maxHeight: 200)
@@ -83,6 +86,11 @@ struct RideView: View {
                 }
             }
         }
+        .overlay {
+            if let sc, sc.countdownPhase == .counting {
+                countdownOverlay(sc: sc)
+            }
+        }
         .onChange(of: beaconService.detectedBeacons) { _, _ in
             session.update()
         }
@@ -96,7 +104,53 @@ struct RideView: View {
         }
     }
 
-    // MARK: - Auth banner
+    // MARK: - Countdown overlay
+
+    @ViewBuilder
+    private func countdownOverlay(sc: RideSessionController) -> some View {
+        ZStack {
+            Color.black.opacity(0.55)
+                .ignoresSafeArea()
+            VStack(spacing: 16) {
+                Image(systemName: "bell.fill")
+                    .font(.system(size: 48))
+                    .foregroundStyle(.yellow)
+                Text("Entering arena…")
+                    .font(.title2.bold())
+                    .foregroundStyle(.white)
+                Text("Movements will be called after the countdown.")
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.8))
+                    .multilineTextAlignment(.center)
+            }
+            .padding(32)
+        }
+        .transition(.opacity)
+        .animation(.easeInOut(duration: 0.3), value: sc.countdownPhase)
+    }
+
+    // MARK: - Auth banners
+
+    private var locationDeniedBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "location.slash.fill")
+                .foregroundStyle(.red)
+            Text("Location access denied — beacon ranging is unavailable.")
+                .font(.caption)
+                .foregroundStyle(.primary)
+            Spacer()
+            Button("Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            .font(.caption.bold())
+            .foregroundStyle(.red)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(.red.opacity(0.12))
+    }
 
     private var authorizationBanner: some View {
         HStack(spacing: 8) {

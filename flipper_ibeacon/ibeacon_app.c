@@ -10,13 +10,13 @@
 
 // Proximity UUID — matches ArenaConfiguration.prototype in the iOS app
 // and BEACON_UUID in esp32/ibeacon/ibeacon.ino.
-// UUID: B9407F30-F5F8-466E-AFF9-25556B57FE6D
+// UUID: F7826DA6-4FA2-4E98-8024-BC5B71E0893E  (Kontakt factory default)
 static const uint8_t BEACON_UUID[16] = {
-    0xB9, 0x40, 0x7F, 0x30,
-    0xF5, 0xF8,
-    0x46, 0x6E,
-    0xAF, 0xF9,
-    0x25, 0x55, 0x6B, 0x57, 0xFE, 0x6D,
+    0xF7, 0x82, 0x6D, 0xA6,
+    0x4F, 0xA2,
+    0x4E, 0x98,
+    0x80, 0x24,
+    0xBC, 0x5B, 0x71, 0xE0, 0x89, 0x3E,
 };
 
 // Measured RSSI at 1 metre — calibration value embedded in each packet.
@@ -30,11 +30,15 @@ static const uint8_t BEACON_UUID[16] = {
 
 // Letters and their minor values — must match ArenaConfiguration.prototype
 // in the iOS app and the BEACON_MINOR mapping in esp32/ibeacon/ibeacon.ino.
-//   minor 0 = A   (bottom center)
-//   minor 1 = E   (left wall, halfway)
-//   minor 2 = C   (top center)
-//   minor 3 = B   (right wall, halfway)
-static const char* ARENA_LETTERS[] = { "A", "E", "C", "B" };
+//   minor 0 = H   (Kontakt — near C, left)
+//   minor 1 = M   (Kontakt — near C, right)
+//   minor 2 = K   (Kontakt — near A, left)
+//   minor 3 = F   (Kontakt — near A, right)
+//   minor 4 = A   (ESP32  — bottom center)
+//   minor 5 = E   (ESP32  — left wall, halfway)
+//   minor 6 = C   (ESP32  — top center)
+//   minor 7 = B   (ESP32  — right wall, halfway)
+static const char* ARENA_LETTERS[] = { "H", "M", "K", "F", "A", "E", "C", "B" };
 #define LETTER_COUNT ((uint8_t)(sizeof(ARENA_LETTERS) / sizeof(ARENA_LETTERS[0])))
 
 typedef struct {
@@ -90,7 +94,7 @@ static void build_adv_data(uint8_t buf[ADV_DATA_LEN], const IBeaconApp* app) {
     buf[i++] = (uint8_t)(app->major >> 8);
     buf[i++] = (uint8_t)(app->major & 0xFF);
 
-    // Minor = letter index (0=A, 1=E, 2=C, 3=B), big-endian
+    // Minor = letter index (0=H, 1=M, 2=K, 3=F, 4=A, 5=E, 6=C, 7=B), big-endian
     uint16_t minor = (uint16_t)app->letter_idx;
     buf[i++] = (uint8_t)(minor >> 8);
     buf[i++] = (uint8_t)(minor & 0xFF);
@@ -199,7 +203,7 @@ int32_t ibeacon_app_main(void* p) {
     UNUSED(p);
 
     IBeaconApp* app = malloc(sizeof(IBeaconApp));
-    app->letter_idx  = 0;    // "A"
+    app->letter_idx  = 0;    // "H"
     app->major       = 1;    // first / only arena
     app->advertising = false;
 

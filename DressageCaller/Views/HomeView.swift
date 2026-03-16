@@ -3,14 +3,20 @@ import SwiftUI
 
 /// Landing screen for configuring arena, horse, and test before starting a ride.
 struct HomeView: View {
+    @Binding var importURL: URL?
+    @State private var showingSharedImport = false
+    @State private var library = TestLibrary()
     @State private var arenaSize: ArenaSize = .standard
     @State private var horseName: String = ""
     @State private var selectedTest: DressageTest? = SampleTests.trainingLevel1
     @State private var calibration: BeaconCalibration = .load()
     @State private var navigateToRide = false
-    @State private var navigateToDiagnostic = false
     @State private var navigateToCalibration = false
     @State private var voiceRefreshToken = UUID()  // forces voice label to update after picker dismisses
+    @State private var timingOffset: Double = 0.0
+    @State private var practiceMode: Bool = false
+
+    private var timingOffsetKey: String { "timingOffset_\(arenaSize.rawValue)" }
 
     private var voiceLabel: String {
         _ = voiceRefreshToken
@@ -45,10 +51,14 @@ struct HomeView: View {
                 }
 
                 // Beacons
-                Section {
-                    NavigationLink(destination: BeaconDiagnosticView()) {
-                        Label("Beacon Diagnostic", systemImage: "antenna.radiowaves.left.and.right")
+                Section("Beacons") {
+                    NavigationLink("Beacon Diagnostic") {
+                        BeaconDiagnosticView()
                     }
+                }
+
+                // Calibration
+                Section {
                     NavigationLink {
                         CalibrationView(configuration: configuration) { result in
                             calibration = result
@@ -98,7 +108,7 @@ struct HomeView: View {
                 // Test selection
                 Section {
                     NavigationLink {
-                        TestSelectionView(selectedTest: $selectedTest, arenaSize: arenaSize)
+                        TestSelectionView(selectedTest: $selectedTest, arenaSize: arenaSize, library: library)
                     } label: {
                         HStack {
                             Text("Test")
@@ -107,10 +117,45 @@ struct HomeView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
+                    if let test = selectedTest {
+                        NavigationLink(destination: PreviewMovementsView(test: test)) {
+                            Text("Preview Movements")
+                        }
+                    }
                 } footer: {
                     if let test = selectedTest {
                         Text("\(test.movements.count) movements \u{00B7} \(test.organization.rawValue.uppercased()) \(test.year)")
                     }
+                }
+
+                // Timing
+                Section {
+                    VStack(spacing: 6) {
+                        HStack {
+                            Text("Earlier")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text(timingOffsetLabel)
+                                .font(.caption.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text("Later")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Slider(value: $timingOffset, in: -3...3, step: 0.5)
+                            .onChange(of: timingOffset) { _, newValue in
+                                UserDefaults.standard.set(newValue, forKey: timingOffsetKey)
+                            }
+                    }
+                    Toggle("Practice Mode", isOn: $practiceMode)
+                } header: {
+                    Text("Timing")
+                } footer: {
+                    Text(practiceMode
+                         ? "No start bell. Calling pauses when you halt for 5+ seconds."
+                         : "Bell rings at entry; 45-second countdown before movements begin.")
                 }
 
                 // Start
@@ -134,9 +179,34 @@ struct HomeView: View {
                     configuration: configuration,
                     calibration: calibration,
                     test: selectedTest,
-                    horseName: horseName.isEmpty ? nil : horseName
+                    horseName: horseName.isEmpty ? nil : horseName,
+                    practiceMode: practiceMode,
+                    timingOffset: timingOffset
                 ))
             }
+            .onAppear {
+                timingOffset = UserDefaults.standard.object(forKey: timingOffsetKey) as? Double ?? 0.0
+                library.load()
+            }
+            .onChange(of: importURL) { _, url in
+                if url != nil { showingSharedImport = true }
+            }
+            .sheet(isPresented: $showingSharedImport, onDismiss: {
+                importURL = nil
+                library.load()
+            }) {
+                if let url = importURL {
+                    TestImportView(library: library, fileURL: url)
+                }
+            }
+            .onChange(of: arenaSize) { _, _ in
+                timingOffset = UserDefaults.standard.object(forKey: timingOffsetKey) as? Double ?? 0.0
+            }
         }
+    }
+
+    private var timingOffsetLabel: String {
+        if timingOffset == 0 { return "0s" }
+        return timingOffset > 0 ? "+\(String(format: "%.1f", timingOffset))s" : "\(String(format: "%.1f", timingOffset))s"
     }
 }

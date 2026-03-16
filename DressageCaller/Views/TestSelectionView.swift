@@ -4,26 +4,40 @@ import SwiftUI
 struct TestSelectionView: View {
     @Binding var selectedTest: DressageTest?
     let arenaSize: ArenaSize
+    var library: TestLibrary
     @Environment(\.dismiss) private var dismiss
+    @State private var showImport = false
 
-    /// All available tests, filtered to the current arena size.
+    /// Bundled tests matching the current arena size.
     private var availableTests: [DressageTest] {
-        Self.allTests.filter { $0.arenaSize == arenaSize }
+        Self.bundledTests.filter { $0.arenaSize == arenaSize }
     }
 
-    /// All tests including those for a different arena size.
+    /// Bundled tests for a different arena size.
     private var otherTests: [DressageTest] {
-        Self.allTests.filter { $0.arenaSize != arenaSize }
+        Self.bundledTests.filter { $0.arenaSize != arenaSize }
+    }
+
+    /// Imported tests matching the current arena size.
+    private var importedTests: [DressageTest] {
+        library.tests.filter { $0.arenaSize == arenaSize }
+    }
+
+    /// Imported tests for a different arena size.
+    private var otherImportedTests: [DressageTest] {
+        library.tests.filter { $0.arenaSize != arenaSize }
     }
 
     var body: some View {
         List {
-            if availableTests.isEmpty {
+            if availableTests.isEmpty && importedTests.isEmpty {
                 Section {
                     Text("No tests available for this arena size.")
                         .foregroundStyle(.secondary)
                 }
-            } else {
+            }
+
+            if !availableTests.isEmpty {
                 Section(arenaSize == .standard ? "Standard Arena (20\u{00D7}60m)" : "Small Arena (20\u{00D7}40m)") {
                     ForEach(availableTests) { test in
                         testRow(test)
@@ -31,9 +45,17 @@ struct TestSelectionView: View {
                 }
             }
 
-            if !otherTests.isEmpty {
+            if !importedTests.isEmpty {
+                Section("Imported") {
+                    ForEach(importedTests) { test in
+                        testRow(test)
+                    }
+                }
+            }
+
+            if !otherTests.isEmpty || !otherImportedTests.isEmpty {
                 Section {
-                    ForEach(otherTests) { test in
+                    ForEach(otherTests + otherImportedTests) { test in
                         testRow(test)
                             .disabled(true)
                     }
@@ -46,6 +68,14 @@ struct TestSelectionView: View {
         }
         .navigationTitle("Select Test")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("Import…") { showImport = true }
+            }
+        }
+        .sheet(isPresented: $showImport, onDismiss: { library.load() }) {
+            TestImportView(library: library)
+        }
     }
 
     private func testRow(_ test: DressageTest) -> some View {
@@ -73,7 +103,7 @@ struct TestSelectionView: View {
     }
 
     /// Registry of all bundled tests.
-    private static let allTests: [DressageTest] = [
+    private static let bundledTests: [DressageTest] = [
         SampleTests.trainingLevel1,
     ]
 }

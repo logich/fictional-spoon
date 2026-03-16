@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AA1234ABCDEF5678901234AA /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB1234ABCDEF5678901234BB /* CoreBluetooth.framework */; };
-		CC1234ABCDEF5678901234CC /* BeaconDiagnosticService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD1234ABCDEF5678901234DD /* BeaconDiagnosticService.swift */; };
-		EE1234ABCDEF5678901234EE /* BeaconDiagnosticView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1234ABCDEF5678901234FF /* BeaconDiagnosticView.swift */; };
 		00688EB2EACF67C7701BBDDD /* PositionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DF03A80925E254CCD96725C /* PositionEngine.swift */; };
 		04E495761F359329AE08FA8C /* ArenaConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A562305139E377DFDC4037 /* ArenaConfiguration.swift */; };
 		13C9A2A1E379565B47B1FC06 /* BeaconStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 687F0F6B86DEFB586B5CC91B /* BeaconStatusView.swift */; };
@@ -17,6 +14,7 @@
 		250CDEE98C057123D88E6E92 /* SampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7999C6B7232FBE3CAC3D8C /* SampleTests.swift */; };
 		2C33D1A0981609A5ED1A9179 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7493D877E22CFEE2768540A7 /* AVFoundation.framework */; };
 		2D5BD68B0CC3DAF9A50DE146 /* ArenaLetter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B857F4310440A6812FF8CB81 /* ArenaLetter.swift */; };
+		2F48CF62CD30A2A6DCACBC14 /* PDFParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BF3B2F4D6360F73645BE824 /* PDFParserTests.swift */; };
 		2FDFBAE4D64598CA7BA85181 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CCF1EBF47C8396979D752B2 /* CoreMotion.framework */; };
 		3A74A43410E64C65E8BA6FFB /* BeaconCalibration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7759C99D81F9C5639FFEEAF1 /* BeaconCalibration.swift */; };
 		4A0BF43768C86C2984E6342C /* CalibrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E31A396D644792B228AFDFEA /* CalibrationView.swift */; };
@@ -25,10 +23,15 @@
 		668CE390169772FCD5BFB220 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95D27F1D02FCFC789DABF602 /* Assets.xcassets */; };
 		67A9E30F5CB4C232C3526E83 /* RideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12805E1DA9E3EA106BCF1426 /* RideView.swift */; };
 		6CABFDF3518582375508167E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F0656BFBCFA96476192097B2 /* CoreLocation.framework */; };
+		6D94DF7EEA90E358A9A7D03E /* TestLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17082B356662283ADBC3A5A4 /* TestLibrary.swift */; };
+		748794D6B9831EB5B2C13A01 /* PDFTestParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E4791CDDBEA3DF4C21AFB01 /* PDFTestParser.swift */; };
 		8516CEFC1EDD1BE7DE297A4A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0F003CBB03822AC5001217 /* HomeView.swift */; };
+		90649B57DDD30998FED155C8 /* BeaconDiagnosticService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DE8E9A55CE44CE30E9238EC /* BeaconDiagnosticService.swift */; };
 		956081D6CC1B12876CF97D7B /* MotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA71F62B382B55B4DC9F1DA3 /* MotionService.swift */; };
 		96E3D0288D2C9FD774FDC7B3 /* VoicePreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0B251ACB418FEB6A9501D4 /* VoicePreference.swift */; };
+		9FF92F391B77A068CEB8CE41 /* PreviewMovementsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E1F83D98B5CF243E1B809CB /* PreviewMovementsView.swift */; };
 		A526F9F72AC405BA9F555E48 /* BeaconRangingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF1B672D0094BD179066F7B /* BeaconRangingService.swift */; };
+		B40DD8B8538527B5B14D3F0A /* BeaconDiagnosticView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBED422803818113C9C07CC1 /* BeaconDiagnosticView.swift */; };
 		B59C1489C880B75DC829706B /* DressageCallerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7B86A16919F52E3FD2883 /* DressageCallerApp.swift */; };
 		B5A52F98274EA6882BA3C113 /* RideSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB10212C82FDDB33894F6C22 /* RideSession.swift */; };
 		C7200F23E7E36E6A7810779B /* CalibrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503496F7DC5565EDE4C04578 /* CalibrationViewModel.swift */; };
@@ -38,28 +41,44 @@
 		D36F3534C59ED5CF71F94E38 /* SessionLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E9D647AF1A818228457D04 /* SessionLogger.swift */; };
 		E6D059F8B619DA7C630ED952 /* Collection+Safe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE51CE436723A18D2A04995 /* Collection+Safe.swift */; };
 		F82EE56A751DAF3E1506A120 /* DressageTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD343DCF0295B26CE3248829 /* DressageTest.swift */; };
+		FC010C4AB6361146C8B2CC1E /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EFC0FFA79B84C131B924B8BF /* CoreBluetooth.framework */; };
+		FE4AEA8468CBE44DA70C305D /* TestImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 956BE287BA4190E66FD7FD19 /* TestImportView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		97EFDBA8EF2870E8DC8157AC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DB70D8D38EEA9EC6A5065273 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C2E46A0A703D12954F603CA5;
+			remoteInfo = DressageCaller;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
-		BB1234ABCDEF5678901234BB /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
-		DD1234ABCDEF5678901234DD /* BeaconDiagnosticService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDiagnosticService.swift; sourceTree = "<group>"; };
-		FF1234ABCDEF5678901234FF /* BeaconDiagnosticView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDiagnosticView.swift; sourceTree = "<group>"; };
 		09A562305139E377DFDC4037 /* ArenaConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArenaConfiguration.swift; sourceTree = "<group>"; };
 		12805E1DA9E3EA106BCF1426 /* RideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideView.swift; sourceTree = "<group>"; };
+		17082B356662283ADBC3A5A4 /* TestLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestLibrary.swift; sourceTree = "<group>"; };
+		3DC96D27DE5C0ACABC97971B /* DressageCallerTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DressageCallerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		43ED962F168FCE0D0A04B1FB /* VoicePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoicePickerView.swift; sourceTree = "<group>"; };
+		4E4791CDDBEA3DF4C21AFB01 /* PDFTestParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFTestParser.swift; sourceTree = "<group>"; };
 		4FB371BB02AF8E1067525C8A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		503496F7DC5565EDE4C04578 /* CalibrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalibrationViewModel.swift; sourceTree = "<group>"; };
 		5BE51CE436723A18D2A04995 /* Collection+Safe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Safe.swift"; sourceTree = "<group>"; };
+		5BF3B2F4D6360F73645BE824 /* PDFParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFParserTests.swift; sourceTree = "<group>"; };
 		65C7B86A16919F52E3FD2883 /* DressageCallerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DressageCallerApp.swift; sourceTree = "<group>"; };
 		687F0F6B86DEFB586B5CC91B /* BeaconStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconStatusView.swift; sourceTree = "<group>"; };
+		6DE8E9A55CE44CE30E9238EC /* BeaconDiagnosticService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDiagnosticService.swift; sourceTree = "<group>"; };
 		7471A38811354C52B48F12A5 /* TestSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSelectionView.swift; sourceTree = "<group>"; };
 		7493D877E22CFEE2768540A7 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		7759C99D81F9C5639FFEEAF1 /* BeaconCalibration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconCalibration.swift; sourceTree = "<group>"; };
 		7CCF1EBF47C8396979D752B2 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		810CC0FDFCA36609667A29AF /* DressageCaller.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DressageCaller.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		85A3C413980CADEFA3174E78 /* ArenaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArenaView.swift; sourceTree = "<group>"; };
+		956BE287BA4190E66FD7FD19 /* TestImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestImportView.swift; sourceTree = "<group>"; };
 		95D27F1D02FCFC789DABF602 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9DF03A80925E254CCD96725C /* PositionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionEngine.swift; sourceTree = "<group>"; };
+		9E1F83D98B5CF243E1B809CB /* PreviewMovementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewMovementsView.swift; sourceTree = "<group>"; };
 		A8E9D647AF1A818228457D04 /* SessionLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLogger.swift; sourceTree = "<group>"; };
 		AD343DCF0295B26CE3248829 /* DressageTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DressageTest.swift; sourceTree = "<group>"; };
 		B857F4310440A6812FF8CB81 /* ArenaLetter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArenaLetter.swift; sourceTree = "<group>"; };
@@ -73,6 +92,8 @@
 		E31A396D644792B228AFDFEA /* CalibrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalibrationView.swift; sourceTree = "<group>"; };
 		E93CDFFEE5F16C6E7375D9A6 /* DressageCaller.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DressageCaller.entitlements; sourceTree = "<group>"; };
 		EA71F62B382B55B4DC9F1DA3 /* MotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionService.swift; sourceTree = "<group>"; };
+		EBED422803818113C9C07CC1 /* BeaconDiagnosticView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDiagnosticView.swift; sourceTree = "<group>"; };
+		EFC0FFA79B84C131B924B8BF /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		F0656BFBCFA96476192097B2 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		F0F9B8D0BAC005FF5CFC4FE1 /* RiderState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiderState.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -85,7 +106,7 @@
 				6CABFDF3518582375508167E /* CoreLocation.framework in Frameworks */,
 				2C33D1A0981609A5ED1A9179 /* AVFoundation.framework in Frameworks */,
 				2FDFBAE4D64598CA7BA85181 /* CoreMotion.framework in Frameworks */,
-				AA1234ABCDEF5678901234AA /* CoreBluetooth.framework in Frameworks */,
+				FC010C4AB6361146C8B2CC1E /* CoreBluetooth.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,7 +125,7 @@
 			isa = PBXGroup;
 			children = (
 				7493D877E22CFEE2768540A7 /* AVFoundation.framework */,
-				BB1234ABCDEF5678901234BB /* CoreBluetooth.framework */,
+				EFC0FFA79B84C131B924B8BF /* CoreBluetooth.framework */,
 				F0656BFBCFA96476192097B2 /* CoreLocation.framework */,
 				7CCF1EBF47C8396979D752B2 /* CoreMotion.framework */,
 			);
@@ -115,13 +136,15 @@
 			isa = PBXGroup;
 			children = (
 				C3E93017EC21281115D229CA /* AnnouncementService.swift */,
-				DD1234ABCDEF5678901234DD /* BeaconDiagnosticService.swift */,
+				6DE8E9A55CE44CE30E9238EC /* BeaconDiagnosticService.swift */,
 				DDF1B672D0094BD179066F7B /* BeaconRangingService.swift */,
 				EA71F62B382B55B4DC9F1DA3 /* MotionService.swift */,
+				4E4791CDDBEA3DF4C21AFB01 /* PDFTestParser.swift */,
 				9DF03A80925E254CCD96725C /* PositionEngine.swift */,
 				DB10212C82FDDB33894F6C22 /* RideSession.swift */,
 				DBCE5557D84EC7F9A6E660B5 /* RideSessionController.swift */,
 				A8E9D647AF1A818228457D04 /* SessionLogger.swift */,
+				17082B356662283ADBC3A5A4 /* TestLibrary.swift */,
 				CF0B251ACB418FEB6A9501D4 /* VoicePreference.swift */,
 			);
 			path = Services;
@@ -155,8 +178,17 @@
 			isa = PBXGroup;
 			children = (
 				810CC0FDFCA36609667A29AF /* DressageCaller.app */,
+				3DC96D27DE5C0ACABC97971B /* DressageCallerTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		783C5B7FB5CAB20B51185099 /* DressageCallerTests */ = {
+			isa = PBXGroup;
+			children = (
+				5BF3B2F4D6360F73645BE824 /* PDFParserTests.swift */,
+			);
+			path = DressageCallerTests;
 			sourceTree = "<group>";
 		};
 		98BBE494E833CA1BBA70D7F4 /* App */ = {
@@ -171,6 +203,7 @@
 			isa = PBXGroup;
 			children = (
 				6B419E0623AAB6CFD3D93406 /* DressageCaller */,
+				783C5B7FB5CAB20B51185099 /* DressageCallerTests */,
 				2FD6398FB5396EB666FB64E3 /* Frameworks */,
 				7702A08F3C5157C7A3FFA538 /* Products */,
 			);
@@ -193,11 +226,13 @@
 			isa = PBXGroup;
 			children = (
 				85A3C413980CADEFA3174E78 /* ArenaView.swift */,
+				EBED422803818113C9C07CC1 /* BeaconDiagnosticView.swift */,
 				687F0F6B86DEFB586B5CC91B /* BeaconStatusView.swift */,
-				FF1234ABCDEF5678901234FF /* BeaconDiagnosticView.swift */,
 				E31A396D644792B228AFDFEA /* CalibrationView.swift */,
 				CD0F003CBB03822AC5001217 /* HomeView.swift */,
+				9E1F83D98B5CF243E1B809CB /* PreviewMovementsView.swift */,
 				12805E1DA9E3EA106BCF1426 /* RideView.swift */,
+				956BE287BA4190E66FD7FD19 /* TestImportView.swift */,
 				7471A38811354C52B48F12A5 /* TestSelectionView.swift */,
 				43ED962F168FCE0D0A04B1FB /* VoicePickerView.swift */,
 			);
@@ -225,6 +260,24 @@
 			productName = DressageCaller;
 			productReference = 810CC0FDFCA36609667A29AF /* DressageCaller.app */;
 			productType = "com.apple.product-type.application";
+		};
+		FDBA11D708762A137F7B9B16 /* DressageCallerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 809F7D7DB4F57E7829BB4BF8 /* Build configuration list for PBXNativeTarget "DressageCallerTests" */;
+			buildPhases = (
+				B54E8014ABCA59028C83F871 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E0C4DBF01FF285FABCA13C43 /* PBXTargetDependency */,
+			);
+			name = DressageCallerTests;
+			packageProductDependencies = (
+			);
+			productName = DressageCallerTests;
+			productReference = 3DC96D27DE5C0ACABC97971B /* DressageCallerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -256,6 +309,7 @@
 			projectRoot = "";
 			targets = (
 				C2E46A0A703D12954F603CA5 /* DressageCaller */,
+				FDBA11D708762A137F7B9B16 /* DressageCallerTests */,
 			);
 		};
 /* End PBXProject section */
@@ -278,11 +332,11 @@
 			files = (
 				4B62154CE2A73B60981BDE20 /* AnnouncementService.swift in Sources */,
 				04E495761F359329AE08FA8C /* ArenaConfiguration.swift in Sources */,
-				CC1234ABCDEF5678901234CC /* BeaconDiagnosticService.swift in Sources */,
-				EE1234ABCDEF5678901234EE /* BeaconDiagnosticView.swift in Sources */,
 				2D5BD68B0CC3DAF9A50DE146 /* ArenaLetter.swift in Sources */,
 				CCF4351C4C6BC6F6D305E31C /* ArenaView.swift in Sources */,
 				3A74A43410E64C65E8BA6FFB /* BeaconCalibration.swift in Sources */,
+				90649B57DDD30998FED155C8 /* BeaconDiagnosticService.swift in Sources */,
+				B40DD8B8538527B5B14D3F0A /* BeaconDiagnosticView.swift in Sources */,
 				A526F9F72AC405BA9F555E48 /* BeaconRangingService.swift in Sources */,
 				13C9A2A1E379565B47B1FC06 /* BeaconStatusView.swift in Sources */,
 				4A0BF43768C86C2984E6342C /* CalibrationView.swift in Sources */,
@@ -292,20 +346,40 @@
 				F82EE56A751DAF3E1506A120 /* DressageTest.swift in Sources */,
 				8516CEFC1EDD1BE7DE297A4A /* HomeView.swift in Sources */,
 				956081D6CC1B12876CF97D7B /* MotionService.swift in Sources */,
+				748794D6B9831EB5B2C13A01 /* PDFTestParser.swift in Sources */,
 				00688EB2EACF67C7701BBDDD /* PositionEngine.swift in Sources */,
+				9FF92F391B77A068CEB8CE41 /* PreviewMovementsView.swift in Sources */,
 				B5A52F98274EA6882BA3C113 /* RideSession.swift in Sources */,
 				CA0B41A1BD3202109ED4A36D /* RideSessionController.swift in Sources */,
 				67A9E30F5CB4C232C3526E83 /* RideView.swift in Sources */,
 				C8B0A059BB6477FD3319AFC3 /* RiderState.swift in Sources */,
 				250CDEE98C057123D88E6E92 /* SampleTests.swift in Sources */,
 				D36F3534C59ED5CF71F94E38 /* SessionLogger.swift in Sources */,
+				FE4AEA8468CBE44DA70C305D /* TestImportView.swift in Sources */,
+				6D94DF7EEA90E358A9A7D03E /* TestLibrary.swift in Sources */,
 				1B1CA85C6136F6E6BAA4419F /* TestSelectionView.swift in Sources */,
 				4C172A71A032B61061EC8626 /* VoicePickerView.swift in Sources */,
 				96E3D0288D2C9FD774FDC7B3 /* VoicePreference.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B54E8014ABCA59028C83F871 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2F48CF62CD30A2A6DCACBC14 /* PDFParserTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E0C4DBF01FF285FABCA13C43 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C2E46A0A703D12954F603CA5 /* DressageCaller */;
+			targetProxy = 97EFDBA8EF2870E8DC8157AC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		06F56B73098B784A05936645 /* Release */ = {
@@ -343,6 +417,40 @@
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4F5442EC7128B7FC9AF2554F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.dressagecaller.DressageCallerTests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DressageCaller.app/DressageCaller";
+			};
+			name = Release;
+		};
+		60363B8EB9A3B5FF404BBD5C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.dressagecaller.DressageCallerTests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DressageCaller.app/DressageCaller";
 			};
 			name = Debug;
 		};
@@ -473,6 +581,15 @@
 			buildConfigurations = (
 				77EE6E7D24CFB308B093235C /* Debug */,
 				727A9182A8D1278DF9196311 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		809F7D7DB4F57E7829BB4BF8 /* Build configuration list for PBXNativeTarget "DressageCallerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60363B8EB9A3B5FF404BBD5C /* Debug */,
+				4F5442EC7128B7FC9AF2554F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

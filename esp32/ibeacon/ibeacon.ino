@@ -6,10 +6,10 @@
  *
  * CONFIGURATION:
  *   Set BEACON_MINOR below to match the arena letter for this device:
- *     0 = A  (bottom center)
- *     1 = E  (left wall, middle)
- *     2 = C  (top center)
- *     3 = B  (right wall, middle)
+ *     4 = A  (bottom center)
+ *     5 = E  (left wall, middle)
+ *     6 = C  (top center)
+ *     7 = B  (right wall, middle)
  *
  * Hardware: Any ESP32 dev board (ESP32, ESP32-S3, ESP32-C3, etc.)
  * Framework: Arduino with ESP32 BLE Arduino library
@@ -29,8 +29,8 @@
 #define BEACON_MAJOR      1
 
 // >>> CHANGE THIS PER DEVICE <<<
-// 0=A, 1=E, 2=C, 3=B
-#define BEACON_MINOR      0
+// 4=A, 5=E, 6=C, 7=B
+#define BEACON_MINOR      5
 
 // Measured power: RSSI at 1 meter (calibrate per-device if needed)
 #define MEASURED_POWER    (-59)
@@ -53,12 +53,12 @@ static uint8_t advData[] = {
   0x4C, 0x00, // Apple company ID (little-endian)
   0x02, 0x15, // iBeacon type (0x02), data length (0x15 = 21)
 
-  // Proximity UUID: B9407F30-F5F8-466E-AFF9-25556B57FE6D (big-endian)
-  0xB9, 0x40, 0x7F, 0x30,
-  0xF5, 0xF8,
-  0x46, 0x6E,
-  0xAF, 0xF9,
-  0x25, 0x55, 0x6B, 0x57, 0xFE, 0x6D,
+  // Proximity UUID: F7826DA6-4FA2-4E98-8024-BC5B71E0893E (Kontakt factory default, big-endian)
+  0xF7, 0x82, 0x6D, 0xA6,
+  0x4F, 0xA2,
+  0x4E, 0x98,
+  0x80, 0x24,
+  0xBC, 0x5B, 0x71, 0xE0, 0x89, 0x3E,
 
   // Major (big-endian)
   (BEACON_MAJOR >> 8) & 0xFF, BEACON_MAJOR & 0xFF,
@@ -91,10 +91,10 @@ void gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
 void setup() {
   Serial.begin(115200);
 
-  const char* letterNames[] = {"A", "E", "C", "B"};
+  const char* letterNames[] = {"H", "M", "K", "F", "A", "E", "C", "B"};
   Serial.printf("\n=== Dressage iBeacon ===\n");
   Serial.printf("Letter: %s (minor %d)\n",
-                BEACON_MINOR < 4 ? letterNames[BEACON_MINOR] : "?",
+                BEACON_MINOR < 8 ? letterNames[BEACON_MINOR] : "?",
                 BEACON_MINOR);
   Serial.printf("Major:  %d  Minor: %d\n", BEACON_MAJOR, BEACON_MINOR);
   Serial.printf("TxPow:  %d dBm\n", MEASURED_POWER);

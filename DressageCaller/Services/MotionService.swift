@@ -44,6 +44,9 @@ final class MotionService {
     private let trottingThreshold   = 0.15   // rhythmic bounce
 
     func start() {
+#if targetEnvironment(simulator)
+        motionState = .walking
+#else
         guard !isRunning, motionManager.isAccelerometerAvailable else { return }
 
         motionManager.accelerometerUpdateInterval = 0.1  // 10 Hz
@@ -55,13 +58,18 @@ final class MotionService {
             }
         }
         isRunning = true
+#endif
     }
 
     func stop() {
+#if targetEnvironment(simulator)
+        motionState = .stationary
+#else
         motionManager.stopAccelerometerUpdates()
         isRunning = false
         motionState = .stationary
         magnitudeBuffer.removeAll()
+#endif
     }
 
     private func processAcceleration(_ accel: CMAcceleration) {

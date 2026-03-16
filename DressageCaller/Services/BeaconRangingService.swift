@@ -41,6 +41,9 @@ final class BeaconRangingService: NSObject {
     private var beaconConstraint: CLBeaconIdentityConstraint?
     private var beaconRegion: CLBeaconRegion?
     private var evictionTimer: Timer?
+    private var smoothedRSSI: [ArenaLetter: Double] = [:]
+    /// Set when startRanging() is called before authorization is granted.
+    private var pendingStart = false
 
     /// Beacons not seen within this window are removed from detectedBeacons.
     private let staleThreshold: TimeInterval = 3.0
@@ -60,6 +63,14 @@ final class BeaconRangingService: NSObject {
 
     func startRanging() {
         guard !isRanging else { return }
+
+        let status = locationManager.authorizationStatus
+        guard status == .authorizedAlways || status == .authorizedWhenInUse else {
+            pendingStart = true
+            print("[Beacon] startRanging deferred — not yet authorized")
+            return
+        }
+        pendingStart = false
 
         print("[Beacon] startRanging called, auth status: \(locationManager.authorizationStatus.rawValue)")
         print("[Beacon] UUID: \(configuration.beaconUUID)")
@@ -83,6 +94,7 @@ final class BeaconRangingService: NSObject {
     }
 
     func stopRanging() {
+        pendingStart = false
         guard isRanging else { return }
         if let constraint = beaconConstraint {
             locationManager.stopRangingBeacons(satisfying: constraint)
@@ -94,6 +106,7 @@ final class BeaconRangingService: NSObject {
         evictionTimer = nil
         isRanging = false
         detectedBeacons = []
+        smoothedRSSI.removeAll()
     }
 
     private func evictStaleBeacons() {
@@ -196,7 +209,7 @@ extension BeaconRangingService: @preconcurrency CLLocationManagerDelegate {
             // Upgrade to always for background ranging
             manager.requestAlwaysAuthorization()
         case .authorizedAlways:
-            break
+            if pendingStart { startRanging() }
         case .denied, .restricted:
             print("[Beacon] Authorization denied/restricted — stopping")
             stopRanging()
@@ -227,9 +240,14 @@ extension BeaconRangingService: @preconcurrency CLLocationManagerDelegate {
                 return nil
             }
 
+            let raw = Double(beacon.rssi)
+            let prev = smoothedRSSI[letter] ?? raw
+            let smoothed = 0.3 * raw + 0.7 * prev
+            smoothedRSSI[letter] = smoothed
+
             return DetectedBeacon(
                 letter: letter,
-                rssi: beacon.rssi,
+                rssi: Int(smoothed.rounded()),
                 accuracy: beacon.accuracy,
                 proximity: beacon.proximity,
                 lastSeen: now
