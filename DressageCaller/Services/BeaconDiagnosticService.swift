@@ -3,7 +3,7 @@ import CoreLocation
 import Foundation
 import Observation
 
-struct RawBeaconResult: Identifiable {
+struct RawBeaconResult: Identifiable, Sendable {
     /// Unique per beacon: "\(major)-\(minor)".
     /// Using CLBeacon.uuid here would give every beacon the same id (shared app-level UUID),
     /// causing ForEach to collapse all rows to one.
@@ -34,7 +34,7 @@ struct RawBeaconResult: Identifiable {
     }
 }
 
-struct NearbyBLEDevice: Identifiable {
+struct NearbyBLEDevice: Identifiable, Sendable {
     let id: String          // MAC address e.g. "AA:BB:CC:DD:EE:FF"
     let rssi: Int
     let batteryLevel: Int?  // 0–100, nil if frame could not be parsed

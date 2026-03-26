@@ -91,28 +91,7 @@ struct BeaconDiagnosticView: View {
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(service.bleDevices) { device in
-                    HStack {
-                        Text(device.id)
-                            .font(.system(.body, design: .monospaced))
-                        Spacer()
-                        VStack(alignment: .trailing, spacing: 2) {
-                            Label("\(device.rssi) dBm", systemImage: "antenna.radiowaves.left.and.right")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            if let battery = device.batteryLevel {
-                                Label("\(battery)%", systemImage: "battery.100")
-                                    .font(.caption)
-                                    .foregroundStyle(battery > 20 ? .secondary : .red)
-                                    .accessibilityLabel("Battery \(battery) percent")
-                            }
-                        }
-                    }
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel({
-                        var label = "Device \(device.id), \(device.rssi) dBm"
-                        if let battery = device.batteryLevel { label += ", battery \(battery) percent" }
-                        return label
-                    }())
+                    BLEDeviceRow(device: device)
                 }
             }
         }
@@ -143,5 +122,35 @@ struct BeaconDiagnosticView: View {
         case .unknown: "Unknown"
         @unknown default: "Unknown"
         }
+    }
+}
+
+private struct BLEDeviceRow: View {
+    let device: NearbyBLEDevice
+
+    var body: some View {
+        HStack {
+            Text(device.id)
+                .font(.system(.body, design: .monospaced))
+            Spacer()
+            VStack(alignment: .trailing, spacing: 2) {
+                Label("\(device.rssi) dBm", systemImage: "antenna.radiowaves.left.and.right")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                if let battery = device.batteryLevel {
+                    Label("\(battery)%", systemImage: "battery.100")
+                        .font(.caption)
+                        .foregroundStyle(battery > 20 ? Color.secondary : Color.red)
+                }
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabel)
+    }
+
+    private var accessibilityLabel: String {
+        var label = "Device \(device.id), \(device.rssi) dBm"
+        if let battery = device.batteryLevel { label += ", battery \(battery) percent" }
+        return label
     }
 }
