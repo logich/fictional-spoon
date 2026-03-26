@@ -1,11 +1,12 @@
 # RF / iBeacon Positioning — Expert Guidance
 
-## Current Hardware (2026-03-09)
-- 4 beacons: A (10,0), E (0,30), C (10,60), B (20,30) — diamond layout
-- Beacon B is different hardware (ESP32 vs Flipper Zero), ~6dB weaker TX power than A/C/E
+## Current Hardware (2026-03-16)
+- 8 beacons deployed: A (10,0), K (20,6), E (0,30), H (20,54), C (10,60), M (0,54), B (20,30), F (0,6)
+- ESP32 beacons (A, E, C, B) read 6–10 dBm stronger than Kontakt beacons (K, H, M, F) — fixed with TX-power normalisation
 - Arena: 20×60m standard dressage arena inside a metal barn (heavy multipath/reflection)
+- App ranging UUID: `74648DDD-D39B-4263-9DE5-4D18C8CF4D83` (app-specific, pre-programmed into all hardware)
 
-## Field Test Results (2026-03-09)
+## Field Test Results (2026-03-09) — 4 Beacons
 - Ride duration: 189s. E beacon present only t=76s–144s (36% of ride) — power issue, not placement
 - Per-beacon accuracy (CoreLocation `accuracy` field):
   - A: avg 14.1m, 75% of readings >10m
@@ -14,6 +15,14 @@
   - E: avg 5.1m, 14% of readings >10m (best performer)
 - Confidence: 639/640 rows "weak" — position never trustworthy
 - Positioning bore almost no relation to actual position in arena
+
+## Field Test Results (2026-03-16) — 8 Beacons, Centroid Walk
+- 8 beacons detected, E beacon ran full session without dropout ✓
+- Only 2–3 accurate position moments in the walking session
+- Root cause: ESP32 beacons (A, E, C, B) were 6–10 dBm stronger than Kontakt (K, H, M, F), biasing centroid ~30m off toward the short wall
+- Fix applied: TX-power normalisation in weight formula — `weight = 10^((rssi - txPower) / 20)`
+- Ride data: `ride-data/ride_2026-03-16_170540.csv`; calibration data: `ride-data/calibration_export.csv`
+- **Status**: TX normalisation fix not yet field-tested; next session will verify
 
 ## Why CoreLocation `accuracy` Fails Here
 - Apple's model assumes free-space propagation (n≈2.0, TxPower≈-59dBm)
@@ -46,13 +55,15 @@
 - Match TX power to other beacons, or swap for matching hardware (Flipper/ESP32)
 - Verify: stand 1m from each beacon, compare raw RSSI — should be within 2–3dB
 
-### Step 2 — Replace trilateration with proximity-weighted centroid (next code sprint)
-- Do NOT use `accuracy` field for distance
-- Use smoothed RSSI directly as proximity weights: `weight = 10 ^ ((RSSI + 50) / 20)`
-- Weighted centroid of beacon positions using these weights
-- Add per-beacon exponential moving average RSSI smoothing: alpha=0.3, updated each ranging callback
-- Add letter-change hysteresis: require new letter dominant for 2–3 consecutive seconds before announcing
-- Note: previous weighted centroid collapsed to centreline — this was because only centreline beacons existed; with A/E/C/B the side beacons will pull toward walls
+### Step 2 — Replace trilateration with proximity-weighted centroid ✅ IMPLEMENTED
+- Does NOT use `accuracy` field for distance
+- **Noise floor**: beacons with RSSI > -90dBm are "qualified"; falls back to all-negative if none qualify
+- **Weight formula**: `weight = 10^((rssi - txPower) / 20)` — uses per-beacon TX power from calibration to normalise mixed hardware
+  - Original suggestion was `weight = 10^((RSSI+50)/20)` (fixed -50 reference); TX normalisation is a critical improvement that fixed the 30m centroid bias seen in the 2026-03-16 test
+- Per-beacon EMA smoothing: alpha=0.3 in BeaconRangingService (applied before PositionEngine)
+- **Confidence**: ≥2 beacons above -80dBm = `.strong`, ≥1 = `.weak`, else `.none`
+- Letter-change hysteresis: 2.0s time-based (not count-based)
+- **Field validation pending** — centroid live, TX normalisation fix not yet tested in a ride
 
 ### Step 3 — Order 4 corner beacons (K, F, H, M)
 - Target: 8 beacons total at A, K, E, F, C, M, B, H
@@ -60,14 +71,14 @@
 - Provides redundancy: any 2 beacon dropouts still leave 6 usable
 - B corner placement: doesn't matter which corner — TX power mismatch affects all corners equally
 
-### Step 4 — RSSI Fingerprinting (after 8 beacons)
-- During calibration: walk to each letter position, record 10s of RSSI from all 8 beacons
-- Store mean RSSI vector per letter as fingerprint
-- At ride time: compare smoothed RSSI vector to all fingerprints (Euclidean distance in RSSI-space)
-- Closest fingerprint = rider's zone
-- Naturally captures multipath and metal barn effects — no physics model needed
-- Calibration cost: ~5 min (stand 10s at each of 12 letters)
+### Step 4 — RSSI Fingerprinting ✅ IMPLEMENTED (field validation pending)
+- **Two-pass walk**: Pass 1 clockwise (A→K→E→H→C→M→B→F), Pass 2 counterclockwise — results merged by averaging
+- **Storage**: `BeaconCalibration.fingerprints: [ArenaLetter: FingerprintVector]` — custom Codable with backward compatibility for old calibration data
+- **Matching**: `BeaconCalibration.nearestFingerprint(readings:)` — Euclidean distance in RSSI-space; overrides geometric nearest-letter in PositionEngine when fingerprints are available
+- **Export**: `BeaconCalibration.exportCSV()` produces a two-section CSV (TX calibration + arena fingerprints) for offline analysis; accessible via ShareLink in CalibrationView
+- **Calibration UI**: integrated into CalibrationView after TX calibration; can be skipped if prior calibration exists
 - Calibrate at phone height matching mounted riding height (~1.5–2m), not standing height
+- Naturally captures multipath and metal barn effects — no physics model needed
 
 ### Step 5 — Sequence-aware positioning (future)
 - Dressage tests follow a known movement sequence — use this as Bayesian prior
@@ -83,8 +94,20 @@
 - Maximum distance A→C: 60m; E→B: 20m; corner-to-corner: ~63m
 - BLE starts degrading significantly beyond ~20m in metal barn environments
 
-## Files to Modify for Algorithm Change
-- `DressageCaller/Services/PositionEngine.swift` — replace Gauss-Newton with weighted centroid
-- `DressageCaller/Services/BeaconRangingService.swift` — add per-beacon RSSI EMA smoothing
-- `DressageCaller/Models/BeaconCalibration.swift` — extend to store fingerprint vectors per letter
-- `DressageCaller/Models/ArenaConfiguration.swift` — add corner beacon mappings when hardware arrives
+## Position Verification Field Testing
+
+A dedicated **Position Verification** screen (accessible from HomeView) enables ground-truth accuracy measurement:
+- User walks to known arena letters and taps the corresponding button
+- Engine estimate is displayed live; accuracy counter tracks correct/total ground-truth taps
+- Events logged as `GROUND_TRUTH` rows in a CSV via `SessionLogger.logRawRow()` alongside continuous engine output rows
+- Export CSV after session for per-letter accuracy analysis
+
+Use this screen to validate the TX normalisation fix before relying on the centroid for a real ride.
+
+## Key Files
+- `DressageCaller/Services/PositionEngine.swift` — centroid algorithm
+- `DressageCaller/Services/BeaconRangingService.swift` — per-beacon RSSI EMA smoothing
+- `DressageCaller/Models/BeaconCalibration.swift` — FingerprintVector, fingerprints dict, exportCSV(), nearestFingerprint()
+- `DressageCaller/Models/ArenaConfiguration.swift` — 8-beacon prototype config, beaconProximityUUID
+- `DressageCaller/ViewModels/PositionVerificationViewModel.swift` — standalone field-test service owner
+- `DressageCaller/Views/PositionVerificationView.swift` — ground-truth UI

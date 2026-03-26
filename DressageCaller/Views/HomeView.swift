@@ -29,7 +29,7 @@ struct HomeView: View {
 
     private var configuration: ArenaConfiguration {
         ArenaConfiguration(
-            beaconUUID: ArenaConfiguration.prototype.beaconUUID,
+            beaconUUID: ArenaConfiguration.beaconProximityUUID,
             arenaSize: arenaSize,
             beaconMappings: ArenaConfiguration.prototype.beaconMappings
         )
@@ -55,12 +55,18 @@ struct HomeView: View {
                     NavigationLink("Beacon Diagnostic") {
                         BeaconDiagnosticView()
                     }
+                    NavigationLink("Position Verification") {
+                        PositionVerificationView(configuration: configuration, calibration: calibration)
+                    }
                 }
 
                 // Calibration
                 Section {
                     NavigationLink {
-                        CalibrationView(configuration: configuration) { result in
+                        CalibrationView(
+                            configuration: configuration,
+                            existingCalibration: calibration
+                        ) { result in
                             calibration = result
                             result.save()
                         }

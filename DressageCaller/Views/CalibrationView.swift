@@ -1,11 +1,21 @@
 import SwiftUI
 
-/// Guided calibration walk: stand 1 meter from each beacon to record signal strength.
+/// Guided calibration walk: stand 1 meter from each beacon to record signal strength,
+/// then optionally walk two circuits (clockwise + counterclockwise) to capture arena fingerprints.
 struct CalibrationView: View {
     @State private var vm: CalibrationViewModel
+    @State private var exportURL: URL?
 
-    init(configuration: ArenaConfiguration, onComplete: @escaping (BeaconCalibration) -> Void) {
-        self._vm = State(initialValue: CalibrationViewModel(configuration: configuration, onComplete: onComplete))
+    init(
+        configuration: ArenaConfiguration,
+        existingCalibration: BeaconCalibration = .uncalibrated,
+        onComplete: @escaping (BeaconCalibration) -> Void
+    ) {
+        self._vm = State(initialValue: CalibrationViewModel(
+            configuration: configuration,
+            existingCalibration: existingCalibration,
+            onComplete: onComplete
+        ))
     }
 
     var body: some View {
@@ -15,11 +25,16 @@ struct CalibrationView: View {
             Spacer()
 
             switch vm.phase {
-            case .instructions:  instructionsContent
-            case .waitingForSignal: waitingContent
-            case .sampling:      samplingContent
-            case .recorded:      recordedContent
-            case .complete:      completeContent
+            case .instructions:              instructionsContent
+            case .waitingForSignal:          waitingContent
+            case .sampling:                  samplingContent
+            case .recorded:                  recordedContent
+            case .complete:                  completeContent
+            case .fingerprintInstructions:   fingerprintInstructionsContent
+            case .fingerprintWalking:        fingerprintWalkingContent
+            case .fingerprintRecorded:       fingerprintRecordedContent
+            case .fingerprintPassComplete:   fingerprintPassCompleteContent
+            case .fingerprintComplete:       fingerprintCompleteContent
             }
 
             Spacer()
@@ -41,15 +56,28 @@ struct CalibrationView: View {
 
     private var progressHeader: some View {
         VStack(spacing: 8) {
-            ProgressView(value: Double(vm.currentIndex), total: Double(vm.beaconLetters.count))
-                .tint(.blue)
-            Text("\(vm.currentIndex) of \(vm.beaconLetters.count) beacons calibrated")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            switch vm.phase {
+            case .fingerprintInstructions, .fingerprintWalking, .fingerprintRecorded, .fingerprintPassComplete, .fingerprintComplete:
+                let total = vm.beaconLetters.count
+                let completed = vm.fingerprintPass == 1
+                    ? vm.fingerprintIndex
+                    : total + vm.fingerprintIndex
+                ProgressView(value: Double(completed), total: Double(total * 2))
+                    .tint(.purple)
+                Text("Pass \(vm.fingerprintPass) — \(vm.fingerprintIndex) of \(vm.beaconLetters.count) positions")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            default:
+                ProgressView(value: Double(vm.currentIndex), total: Double(vm.beaconLetters.count))
+                    .tint(.blue)
+                Text("\(vm.currentIndex) of \(vm.beaconLetters.count) beacons calibrated")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 
-    // MARK: - Phase content
+    // MARK: - TX Calibration phase content
 
     private var instructionsContent: some View {
         VStack(spacing: 16) {
@@ -138,6 +166,107 @@ struct CalibrationView: View {
         }
     }
 
+    // MARK: - Fingerprint phase content
+
+    private var fingerprintInstructionsContent: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "map.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(.purple)
+            Text("Arena Fingerprinting — Pass \(vm.fingerprintPass)")
+                .font(.title2.bold())
+            if let letter = vm.fingerprintCurrentLetter {
+                Text("Stand at arena letter **\(letter.rawValue)** and tap **Start**. Stay still for \(Int(CalibrationViewModel.fingerprintDuration)) seconds.")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+                Text("Face in the direction you are travelling — not toward any beacon.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+    }
+
+    private var fingerprintWalkingContent: some View {
+        VStack(spacing: 16) {
+            if let letter = vm.fingerprintCurrentLetter {
+                Text("Recording at \(letter.rawValue) — Pass \(vm.fingerprintPass)")
+                    .font(.headline)
+            }
+            Text("\(Int(vm.fingerprintElapsed))s / \(Int(CalibrationViewModel.fingerprintDuration))s")
+                .font(.system(.title, design: .monospaced))
+                .foregroundStyle(.purple)
+            ProgressView(value: vm.fingerprintElapsed, total: CalibrationViewModel.fingerprintDuration)
+                .tint(.purple)
+            Text("Stand still at this letter position")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var fingerprintRecordedContent: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(.purple)
+            if let letter = vm.fingerprintCurrentLetter {
+                Text("Position \(letter.rawValue) recorded — Pass \(vm.fingerprintPass)")
+                    .font(.headline)
+                Text("\(vm.fingerprintLastRecordedBeaconCount) beacons recorded")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var fingerprintPassCompleteContent: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(.purple)
+            Text("Pass 1 Complete")
+                .font(.title2.bold())
+            Text("Now walk the arena counterclockwise — starting at A, going to F, B, M, C, H, E, K. Face in your direction of travel at each letter.")
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var fingerprintCompleteContent: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "checkmark.seal.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(.purple)
+            Text("Fingerprinting Complete")
+                .font(.title2.bold())
+            VStack(alignment: .leading, spacing: 4) {
+                ForEach(vm.beaconLetters) { letter in
+                    if let fp = vm.calibration.fingerprints[letter] {
+                        HStack {
+                            Text(letter.rawValue)
+                                .font(.system(.body, design: .monospaced).bold())
+                            Spacer()
+                            Text("\(fp.rssiByBeacon.count) beacons")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+            .padding()
+            .background(.fill.tertiary, in: RoundedRectangle(cornerRadius: 8))
+        }
+    }
+
+    // MARK: - Export
+
+    private func makeExportURL() -> URL? {
+        let csv = vm.calibration.exportCSV()
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("calibration_export.csv")
+        try? csv.write(to: url, atomically: true, encoding: .utf8)
+        return url
+    }
+
     // MARK: - Actions
 
     @ViewBuilder
@@ -176,14 +305,98 @@ struct CalibrationView: View {
             .buttonStyle(.borderedProminent)
 
         case .complete:
+            VStack(spacing: 12) {
+                Button {
+                    vm.startFingerprinting()
+                } label: {
+                    Label("Fingerprint Arena", systemImage: "map.fill")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.purple)
+
+                exportButton
+
+                Button {
+                    vm.finish()
+                } label: {
+                    Text("Skip")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+            }
+
+        case .fingerprintInstructions:
             Button {
-                vm.finish()
+                vm.startFingerprintForCurrentLetter()
             } label: {
-                Label("Done", systemImage: "checkmark")
+                Label("Start", systemImage: "play.fill")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
+            .tint(.purple)
+
+        case .fingerprintWalking:
+            EmptyView()
+
+        case .fingerprintRecorded:
+            Button {
+                vm.advanceFingerprintToNext()
+            } label: {
+                let isLast = vm.isFingerprintLastInPass
+                let isPass1 = vm.fingerprintPass == 1
+                let label = isLast ? (isPass1 ? "Complete Pass 1" : "Finish") : "Next Position"
+                let icon  = isLast ? "checkmark" : "arrow.right"
+                Label(label, systemImage: icon)
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.purple)
+
+        case .fingerprintPassComplete:
+            Button {
+                vm.startPass2()
+            } label: {
+                Label("Start Pass 2", systemImage: "arrow.counterclockwise")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.purple)
+
+        case .fingerprintComplete:
+            VStack(spacing: 12) {
+                Button {
+                    vm.finish()
+                } label: {
+                    Label("Done", systemImage: "checkmark")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+
+                exportButton
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var exportButton: some View {
+        if let url = exportURL {
+            ShareLink(item: url) {
+                Label("Share CSV", systemImage: "square.and.arrow.up")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+        } else {
+            Button { exportURL = makeExportURL() } label: {
+                Label("Export CSV", systemImage: "square.and.arrow.up")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
         }
     }
 }

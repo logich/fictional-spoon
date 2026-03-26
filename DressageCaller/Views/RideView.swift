@@ -58,7 +58,8 @@ struct RideView: View {
 
             Divider()
 
-            // Debug panel (collapsible)
+            // Debug panel (collapsible, debug builds only)
+            #if DEBUG
             if showDebugPanel {
                 ScrollView {
                     BeaconStatusView(
@@ -69,6 +70,7 @@ struct RideView: View {
                 .frame(maxHeight: 200)
                 .transition(.move(edge: .bottom))
             }
+            #endif
 
             // Controls
             controlBar.padding()
@@ -111,6 +113,7 @@ struct RideView: View {
         ZStack {
             Color.black.opacity(0.55)
                 .ignoresSafeArea()
+                .accessibilityHidden(true)
             VStack(spacing: 16) {
                 Image(systemName: "bell.fill")
                     .font(.system(size: 48))
@@ -124,6 +127,8 @@ struct RideView: View {
                     .multilineTextAlignment(.center)
             }
             .padding(32)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Entering arena. Movements will be called after the countdown.")
         }
         .transition(.opacity)
         .animation(.easeInOut(duration: 0.3), value: sc.countdownPhase)
@@ -223,9 +228,11 @@ struct RideView: View {
     }
 
     private func movementProgressBar(_ sc: RideSessionController, test: DressageTest) -> some View {
-        let index = sc.currentMovementIndex
+        let nextIndex = sc.currentMovementIndex
+        let callingIndex = sc.lastAnnouncedIndex
         let total = test.movements.count
-        let movement = index < total ? test.movements[index] : nil
+        let nextMovement = nextIndex < total ? test.movements[nextIndex] : nil
+        let callingMovement = callingIndex >= 0 && callingIndex < total ? test.movements[callingIndex] : nil
 
         return VStack(alignment: .leading, spacing: 6) {
             if sc.isFinished {
@@ -235,38 +242,64 @@ struct RideView: View {
                         .foregroundStyle(.green)
                     Spacer()
                 }
-            } else if let m = movement {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        HStack(spacing: 6) {
-                            Text("\(index + 1)/\(total)")
+            } else {
+                // Secondary row: the movement currently being spoken
+                if let calling = callingMovement {
+                    HStack(spacing: 4) {
+                        Text("Calling:")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        Text("\(callingIndex + 1)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        Text(calling.location.label)
+                            .font(.caption2.bold())
+                            .foregroundStyle(.secondary)
+                        Text("·")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        Text(calling.directiveText)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                        Spacer()
+                    }
+                }
+
+                // Primary row: the next movement to be triggered
+                if let next = nextMovement {
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 6) {
+                                Text("Next: \(nextIndex + 1)/\(total)")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text(next.location.label)
+                                    .font(.caption.bold())
+                                if let gait = next.expectedGait {
+                                    Text(gait.rawValue.capitalized)
+                                        .font(.caption2)
+                                        .padding(.horizontal, 5)
+                                        .padding(.vertical, 2)
+                                        .background(gaitColor(gait).opacity(0.15), in: Capsule())
+                                        .foregroundStyle(gaitColor(gait))
+                                }
+                            }
+                            Text(next.directiveText)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            Text(m.location.label)
-                                .font(.caption.bold())
-                            if let gait = m.expectedGait {
-                                Text(gait.rawValue.capitalized)
-                                    .font(.caption2)
-                                    .padding(.horizontal, 5)
-                                    .padding(.vertical, 2)
-                                    .background(gaitColor(gait).opacity(0.15), in: Capsule())
-                                    .foregroundStyle(gaitColor(gait))
-                            }
+                                .lineLimit(2)
                         }
-                        Text(m.directiveText)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
+                        Spacer()
+                        Button { sc.skipMovement() } label: {
+                            Image(systemName: "forward.fill").font(.caption)
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.mini)
                     }
-                    Spacer()
-                    Button { sc.skipMovement() } label: {
-                        Image(systemName: "forward.fill").font(.caption)
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.mini)
                 }
             }
-            ProgressView(value: sc.isFinished ? Double(total) : Double(index), total: Double(total))
+            ProgressView(value: sc.isFinished ? Double(total) : Double(nextIndex), total: Double(total))
                 .tint(.blue)
         }
     }
@@ -339,6 +372,7 @@ struct RideView: View {
                 .tint(sessionLogger.isLogging ? .red : .secondary)
             }
 
+            #if DEBUG
             Button {
                 withAnimation { showDebugPanel.toggle() }
             } label: {
@@ -349,6 +383,7 @@ struct RideView: View {
                 .font(.caption)
             }
             .buttonStyle(.bordered)
+            #endif
         }
     }
 }

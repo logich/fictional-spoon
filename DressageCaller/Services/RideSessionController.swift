@@ -46,7 +46,7 @@ final class RideSessionController {
     var triggerDistance: Double = 5.0
 
     private let synthesizer = AVSpeechSynthesizer()
-    private var lastAnnouncedIndex: Int = -1
+    private(set) var lastAnnouncedIndex: Int = -1
 
     private var countdownTimer: Timer?
     private var countdownStartTime: Date?

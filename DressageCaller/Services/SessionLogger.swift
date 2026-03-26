@@ -111,6 +111,14 @@ final class SessionLogger {
         }
     }
 
+    /// Appends a pre-formed CSV row directly to the buffer.
+    /// Row must use the same 14-column format as normal rows and include a trailing newline.
+    /// Used for special event rows such as ground-truth taps during position verification.
+    func logRawRow(_ row: String) {
+        guard isLogging else { return }
+        rowBuffer.append(row)
+    }
+
     func stop() {
         flushTask?.cancel()
         flushTask = nil

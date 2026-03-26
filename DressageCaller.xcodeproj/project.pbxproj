@@ -11,11 +11,13 @@
 		04E495761F359329AE08FA8C /* ArenaConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A562305139E377DFDC4037 /* ArenaConfiguration.swift */; };
 		13C9A2A1E379565B47B1FC06 /* BeaconStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 687F0F6B86DEFB586B5CC91B /* BeaconStatusView.swift */; };
 		1B1CA85C6136F6E6BAA4419F /* TestSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7471A38811354C52B48F12A5 /* TestSelectionView.swift */; };
+		1CDF61536930206C32FECE28 /* PositionVerificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE422C46D0FC6D301994C272 /* PositionVerificationView.swift */; };
 		250CDEE98C057123D88E6E92 /* SampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7999C6B7232FBE3CAC3D8C /* SampleTests.swift */; };
 		2C33D1A0981609A5ED1A9179 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7493D877E22CFEE2768540A7 /* AVFoundation.framework */; };
 		2D5BD68B0CC3DAF9A50DE146 /* ArenaLetter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B857F4310440A6812FF8CB81 /* ArenaLetter.swift */; };
 		2F48CF62CD30A2A6DCACBC14 /* PDFParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BF3B2F4D6360F73645BE824 /* PDFParserTests.swift */; };
 		2FDFBAE4D64598CA7BA85181 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CCF1EBF47C8396979D752B2 /* CoreMotion.framework */; };
+		3863A6CDCB482B555BA303C4 /* PositionVerificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7616B48858F335F46D4860ED /* PositionVerificationViewModel.swift */; };
 		3A74A43410E64C65E8BA6FFB /* BeaconCalibration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7759C99D81F9C5639FFEEAF1 /* BeaconCalibration.swift */; };
 		4A0BF43768C86C2984E6342C /* CalibrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E31A396D644792B228AFDFEA /* CalibrationView.swift */; };
 		4B62154CE2A73B60981BDE20 /* AnnouncementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E93017EC21281115D229CA /* AnnouncementService.swift */; };
@@ -34,6 +36,7 @@
 		B40DD8B8538527B5B14D3F0A /* BeaconDiagnosticView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBED422803818113C9C07CC1 /* BeaconDiagnosticView.swift */; };
 		B59C1489C880B75DC829706B /* DressageCallerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7B86A16919F52E3FD2883 /* DressageCallerApp.swift */; };
 		B5A52F98274EA6882BA3C113 /* RideSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB10212C82FDDB33894F6C22 /* RideSession.swift */; };
+		C235CF77011DF5791B2A5423 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F2F84A45646CDFA5C5524637 /* PrivacyInfo.xcprivacy */; };
 		C7200F23E7E36E6A7810779B /* CalibrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503496F7DC5565EDE4C04578 /* CalibrationViewModel.swift */; };
 		C8B0A059BB6477FD3319AFC3 /* RiderState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F9B8D0BAC005FF5CFC4FE1 /* RiderState.swift */; };
 		CA0B41A1BD3202109ED4A36D /* RideSessionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBCE5557D84EC7F9A6E660B5 /* RideSessionController.swift */; };
@@ -71,6 +74,7 @@
 		6DE8E9A55CE44CE30E9238EC /* BeaconDiagnosticService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconDiagnosticService.swift; sourceTree = "<group>"; };
 		7471A38811354C52B48F12A5 /* TestSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSelectionView.swift; sourceTree = "<group>"; };
 		7493D877E22CFEE2768540A7 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		7616B48858F335F46D4860ED /* PositionVerificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionVerificationViewModel.swift; sourceTree = "<group>"; };
 		7759C99D81F9C5639FFEEAF1 /* BeaconCalibration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconCalibration.swift; sourceTree = "<group>"; };
 		7CCF1EBF47C8396979D752B2 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		810CC0FDFCA36609667A29AF /* DressageCaller.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DressageCaller.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -89,6 +93,7 @@
 		DBCE5557D84EC7F9A6E660B5 /* RideSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideSessionController.swift; sourceTree = "<group>"; };
 		DD7999C6B7232FBE3CAC3D8C /* SampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleTests.swift; sourceTree = "<group>"; };
 		DDF1B672D0094BD179066F7B /* BeaconRangingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconRangingService.swift; sourceTree = "<group>"; };
+		DE422C46D0FC6D301994C272 /* PositionVerificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionVerificationView.swift; sourceTree = "<group>"; };
 		E31A396D644792B228AFDFEA /* CalibrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalibrationView.swift; sourceTree = "<group>"; };
 		E93CDFFEE5F16C6E7375D9A6 /* DressageCaller.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DressageCaller.entitlements; sourceTree = "<group>"; };
 		EA71F62B382B55B4DC9F1DA3 /* MotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionService.swift; sourceTree = "<group>"; };
@@ -96,6 +101,7 @@
 		EFC0FFA79B84C131B924B8BF /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		F0656BFBCFA96476192097B2 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		F0F9B8D0BAC005FF5CFC4FE1 /* RiderState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiderState.swift; sourceTree = "<group>"; };
+		F2F84A45646CDFA5C5524637 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				503496F7DC5565EDE4C04578 /* CalibrationViewModel.swift */,
+				7616B48858F335F46D4860ED /* PositionVerificationViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -164,6 +171,7 @@
 				95D27F1D02FCFC789DABF602 /* Assets.xcassets */,
 				E93CDFFEE5F16C6E7375D9A6 /* DressageCaller.entitlements */,
 				4FB371BB02AF8E1067525C8A /* Info.plist */,
+				F2F84A45646CDFA5C5524637 /* PrivacyInfo.xcprivacy */,
 				98BBE494E833CA1BBA70D7F4 /* App */,
 				38401F7B03C9A0AC0A5B8823 /* Extensions */,
 				C3D9A1801E3D29D14F69EA94 /* Models */,
@@ -230,6 +238,7 @@
 				687F0F6B86DEFB586B5CC91B /* BeaconStatusView.swift */,
 				E31A396D644792B228AFDFEA /* CalibrationView.swift */,
 				CD0F003CBB03822AC5001217 /* HomeView.swift */,
+				DE422C46D0FC6D301994C272 /* PositionVerificationView.swift */,
 				9E1F83D98B5CF243E1B809CB /* PreviewMovementsView.swift */,
 				12805E1DA9E3EA106BCF1426 /* RideView.swift */,
 				956BE287BA4190E66FD7FD19 /* TestImportView.swift */,
@@ -320,6 +329,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				668CE390169772FCD5BFB220 /* Assets.xcassets in Resources */,
+				C235CF77011DF5791B2A5423 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -348,6 +358,8 @@
 				956081D6CC1B12876CF97D7B /* MotionService.swift in Sources */,
 				748794D6B9831EB5B2C13A01 /* PDFTestParser.swift in Sources */,
 				00688EB2EACF67C7701BBDDD /* PositionEngine.swift in Sources */,
+				1CDF61536930206C32FECE28 /* PositionVerificationView.swift in Sources */,
+				3863A6CDCB482B555BA303C4 /* PositionVerificationViewModel.swift in Sources */,
 				9FF92F391B77A068CEB8CE41 /* PreviewMovementsView.swift in Sources */,
 				B5A52F98274EA6882BA3C113 /* RideSession.swift in Sources */,
 				CA0B41A1BD3202109ED4A36D /* RideSessionController.swift in Sources */,

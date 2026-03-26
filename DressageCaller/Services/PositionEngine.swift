@@ -19,12 +19,11 @@ final class PositionEngine {
 
     // MARK: - Letter-change hysteresis
     private var pendingLetter: ArenaLetter? = nil
-    private var pendingLetterCount = 0
-    // Simulator advances one letter per tick — no hysteresis needed there.
+    private var pendingLetterStart: Date? = nil
     #if targetEnvironment(simulator)
-    private let letterHysteresisThreshold = 1
+    private let letterHysteresisInterval: TimeInterval = 0.5
     #else
-    private let letterHysteresisThreshold = 3
+    private let letterHysteresisInterval: TimeInterval = 2.0
     #endif
 
     init(configuration: ArenaConfiguration = .prototype, calibration: BeaconCalibration = .uncalibrated) {
@@ -35,8 +34,9 @@ final class PositionEngine {
     /// Update the position estimate from the latest beacon readings,
     /// constrained by the current motion state from the accelerometer.
     func update(from beacons: [DetectedBeacon], motionState: MotionState) {
-        // Discard beacons with rssi == 0 (no reading); keep all negative RSSI values.
-        let valid = beacons.filter { $0.rssi < 0 }
+        // Prefer beacons above the noise floor; fall back to all negatives if nothing qualifies.
+        let strong = beacons.filter { $0.rssi < 0 && $0.rssi > -90 }
+        let valid = strong.isEmpty ? beacons.filter { $0.rssi < 0 } : strong
 
         guard !valid.isEmpty else {
             riderState = .unknown
@@ -64,20 +64,26 @@ final class PositionEngine {
         // Find nearest letter
         let (nearest, distance) = findNearestLetter(to: filtered)
 
-        // Letter-change hysteresis — require 3 consecutive updates before committing
-        if nearest == pendingLetter {
-            pendingLetterCount += 1
-        } else {
-            pendingLetter = nearest
-            pendingLetterCount = 1
+        // Use fingerprint match if available (more accurate in RF-challenging environments)
+        let rssiMap = Dictionary(uniqueKeysWithValues: valid.map { ($0.letter, Double($0.rssi)) })
+        let candidate = calibration.nearestFingerprint(to: rssiMap) ?? nearest
+
+        // Letter-change hysteresis — require stable reading for hysteresisInterval before committing
+        let now = Date()
+        if candidate != pendingLetter {
+            pendingLetter = candidate
+            pendingLetterStart = now
         }
-        let committedLetter = pendingLetterCount >= letterHysteresisThreshold
-            ? nearest
+        let elapsed = pendingLetterStart.map { now.timeIntervalSince($0) } ?? 0
+        let committedLetter = elapsed >= letterHysteresisInterval
+            ? candidate
             : riderState.nearestLetter
 
-        // Determine confidence
+        // Count clearly audible beacons rather than requiring all to be strong
+        // (impossible with 8 beacons spread across a metal barn).
+        let strongCount = valid.filter { $0.rssi > -75 }.count
         let confidence: RiderState.Confidence
-        if valid.count >= 3 && valid.allSatisfy({ $0.rssi > -80 }) {
+        if strongCount >= 3 {
             confidence = .strong
         } else if valid.count >= 1 {
             confidence = .weak
@@ -187,7 +193,10 @@ final class PositionEngine {
     private func weightedCentroid(beacons: [DetectedBeacon]) -> CGPoint {
         var wx = 0.0, wy = 0.0, wSum = 0.0
         for b in beacons {
-            let w = pow(10.0, (Double(b.rssi) + 50.0) / 20.0)
+            // Normalise by calibrated TX power so mounting orientation and local
+            // multipath variance don't bias the centroid toward any one beacon.
+            let txPower = calibration.rssiAt1m(for: b.letter)
+            let w = pow(10.0, (Double(b.rssi) - txPower) / 20.0)
             let pos = b.letter.position(for: configuration.arenaSize)
             wx += w * Double(pos.x)
             wy += w * Double(pos.y)

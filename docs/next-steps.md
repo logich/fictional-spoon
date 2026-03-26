@@ -3,18 +3,22 @@
 ## Immediate — Sprint 4: RF Positioning & 8 Beacons
 This is the single largest blocker to a usable app. CL `accuracy` is unusable in the metal barn.
 
-**Code items** (can start now):
-1. Implement proximity-weighted centroid in `PositionEngine`: `weight = 10^((RSSI+50)/20)`
-2. Add per-beacon RSSI EMA (alpha=0.3) in `BeaconRangingService` — bypass CL distance model
-3. Add letter-change hysteresis (2–3s dominance before zone change)
-4. RSSI fingerprinting calibration walk — record 10s at each letter, store mean RSSI vector
-5. Update `CalibrationView` / `CalibrationViewModel` for fingerprinting walk
+**Code items** — all implemented ✅:
+1. ~~Implement proximity-weighted centroid in `PositionEngine`~~ ✅ — TX-power-normalised, -90dBm noise floor, 2.0s hysteresis
+2. ~~Add per-beacon RSSI EMA (alpha=0.3) in `BeaconRangingService`~~ ✅
+3. ~~Add letter-change hysteresis~~ ✅ — 2.0s time-based
+4. ~~RSSI fingerprinting calibration walk~~ ✅ — two-pass (CW + CCW), FingerprintVector stored in BeaconCalibration
+5. ~~Update `CalibrationView` / `CalibrationViewModel` for fingerprinting walk~~ ✅ — CSV export added
+6. ~~Position Verification screen~~ ✅ — ground-truth tap logging, accuracy counter, CSV export (see rf-positioning.md)
 
-**Hardware items** (unblock as soon as hardware arrives):
-6. Fix B beacon TX power (~6dB weaker than others)
-7. Fix E beacon power supply (dropped out 70% of last ride)
-8. Order + deploy 4 additional beacons at K, F, H, M
-9. Field test: full arena ride with 8 beacons + centroid algorithm
+**Field validation** (current priority):
+- Run Position Verification walk to confirm TX normalisation fix — stand at each letter, tap button, check accuracy CSV
+- Fingerprint walk — collect two-pass fingerprint data; verify nearestFingerprint() overrides improve accuracy
+
+**Hardware items**:
+- Fix B beacon TX power (~6dB weaker than others) — hardware fix needed
+- E beacon power supply — ran full session 2026-03-16 without dropout ✅; monitor next session
+- Deploy all 8 beacons for each ride
 
 ## Field Verification Pending — Sprint 3
 Sprint 3 is code-complete (2026-03-10) but not yet verified in the arena:

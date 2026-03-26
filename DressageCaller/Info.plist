@@ -49,7 +49,6 @@
 	<array>
 		<string>bluetooth-central</string>
 		<string>location</string>
-		<string>audio</string>
 	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>

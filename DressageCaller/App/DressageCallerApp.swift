@@ -7,10 +7,10 @@ struct DressageCallerApp: App {
     var body: some Scene {
         WindowGroup {
             HomeView(importURL: $importURL)
-        }
-        .onOpenURL { url in
-            guard url.pathExtension.lowercased() == "pdf" else { return }
-            importURL = url
+                .onOpenURL { url in
+                    guard url.pathExtension.lowercased() == "pdf" else { return }
+                    importURL = url
+                }
         }
     }
 }

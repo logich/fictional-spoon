@@ -31,7 +31,6 @@ targets:
         UIBackgroundModes:
           - bluetooth-central
           - location
-          - audio
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.dressagecaller.app

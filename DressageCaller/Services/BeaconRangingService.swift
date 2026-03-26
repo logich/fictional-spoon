@@ -1,5 +1,6 @@
 import CoreLocation
 import Foundation
+import OSLog
 import Observation
 
 /// Beacon data for a single detected beacon mapped to an arena letter.
@@ -33,6 +34,7 @@ final class BeaconRangingService: NSObject {
     var beaconsDetectedCount: Int { detectedBeacons.count }
 
     private let configuration: ArenaConfiguration
+    private let logger = Logger(subsystem: "com.dressagecaller.app", category: "BeaconRanging")
 
 #if !targetEnvironment(simulator)
     // MARK: - Real device implementation
@@ -57,7 +59,7 @@ final class BeaconRangingService: NSObject {
     }
 
     func requestAuthorization() {
-        print("[Beacon] Requesting authorization, current status: \(locationManager.authorizationStatus.rawValue)")
+        logger.info("Requesting authorization, current status: \(self.locationManager.authorizationStatus.rawValue, privacy: .public)")
         locationManager.requestWhenInUseAuthorization()
     }
 
@@ -67,13 +69,12 @@ final class BeaconRangingService: NSObject {
         let status = locationManager.authorizationStatus
         guard status == .authorizedAlways || status == .authorizedWhenInUse else {
             pendingStart = true
-            print("[Beacon] startRanging deferred — not yet authorized")
+            logger.info("startRanging deferred — not yet authorized")
             return
         }
         pendingStart = false
 
-        print("[Beacon] startRanging called, auth status: \(locationManager.authorizationStatus.rawValue)")
-        print("[Beacon] UUID: \(configuration.beaconUUID)")
+        logger.info("startRanging called, auth status: \(self.locationManager.authorizationStatus.rawValue, privacy: .public)")
 
         let constraint = CLBeaconIdentityConstraint(uuid: configuration.beaconUUID)
         let region = CLBeaconRegion(beaconIdentityConstraint: constraint, identifier: "dressage-arena")
@@ -86,7 +87,7 @@ final class BeaconRangingService: NSObject {
         locationManager.startMonitoring(for: region)
         locationManager.startRangingBeacons(satisfying: constraint)
         isRanging = true
-        print("[Beacon] Ranging started")
+        logger.info("Ranging started")
 
         evictionTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in self?.evictStaleBeacons() }
@@ -117,8 +118,8 @@ final class BeaconRangingService: NSObject {
 #else
     // MARK: - Simulator mock implementation
 
-    /// Perimeter letters the simulated rider loops through.
-    private static let route: [ArenaLetter] = [.A, .K, .V, .E, .S, .H, .C, .M, .R, .B, .P, .F]
+    /// Beacon letters the simulated rider loops through (matches the 8 deployed beacons).
+    private static let route: [ArenaLetter] = [.A, .K, .E, .H, .C, .M, .B, .F]
 
     /// Current index into `route`.
     private var routeIndex = 0
@@ -203,7 +204,7 @@ final class BeaconRangingService: NSObject {
 extension BeaconRangingService: @preconcurrency CLLocationManagerDelegate {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         authorizationStatus = manager.authorizationStatus
-        print("[Beacon] Auth changed: \(manager.authorizationStatus.rawValue)")
+        logger.info("Auth changed: \(manager.authorizationStatus.rawValue, privacy: .public)")
         switch manager.authorizationStatus {
         case .authorizedWhenInUse:
             // Upgrade to always for background ranging
@@ -211,7 +212,7 @@ extension BeaconRangingService: @preconcurrency CLLocationManagerDelegate {
         case .authorizedAlways:
             if pendingStart { startRanging() }
         case .denied, .restricted:
-            print("[Beacon] Authorization denied/restricted — stopping")
+            logger.info("Authorization denied/restricted — stopping")
             stopRanging()
         case .notDetermined:
             break
@@ -226,9 +227,9 @@ extension BeaconRangingService: @preconcurrency CLLocationManagerDelegate {
         satisfying constraint: CLBeaconIdentityConstraint
     ) {
         let now = Date()
-        print("[Beacon] didRange called — \(beacons.count) raw beacons")
+        logger.debug("didRange called — \(beacons.count) raw beacons")
         for b in beacons {
-            print("[Beacon]   major=\(b.major) minor=\(b.minor) rssi=\(b.rssi) accuracy=\(b.accuracy) proximity=\(b.proximity.rawValue)")
+            logger.debug("  major=\(b.major, privacy: .public) minor=\(b.minor, privacy: .public) rssi=\(b.rssi) accuracy=\(b.accuracy) proximity=\(b.proximity.rawValue, privacy: .public)")
         }
 
         detectedBeacons = beacons.compactMap { beacon in
@@ -236,7 +237,7 @@ extension BeaconRangingService: @preconcurrency CLLocationManagerDelegate {
                 forMajor: beacon.major.uint16Value,
                 minor: beacon.minor.uint16Value
             ) else {
-                print("[Beacon]   ⚠ No letter mapping for major=\(beacon.major) minor=\(beacon.minor)")
+                logger.error("No letter mapping for major=\(beacon.major, privacy: .public) minor=\(beacon.minor, privacy: .public)")
                 return nil
             }
 
@@ -261,15 +262,15 @@ extension BeaconRangingService: @preconcurrency CLLocationManagerDelegate {
         didFailRangingFor constraint: CLBeaconIdentityConstraint,
         error: Error
     ) {
-        print("[Beacon] Ranging error: \(error.localizedDescription)")
+        logger.error("Ranging error: \(error.localizedDescription, privacy: .public)")
     }
 
     func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
-        print("[Beacon] Monitoring failed: \(error.localizedDescription)")
+        logger.error("Monitoring failed: \(error.localizedDescription, privacy: .public)")
     }
 
     func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
-        print("[Beacon] Started monitoring region: \(region.identifier)")
+        logger.info("Started monitoring region: \(region.identifier, privacy: .public)")
     }
 }
 #endif

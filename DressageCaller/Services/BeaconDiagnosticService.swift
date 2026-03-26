@@ -4,12 +4,24 @@ import Foundation
 import Observation
 
 struct RawBeaconResult: Identifiable {
-    let id: UUID // CLBeacon.uuid
+    /// Unique per beacon: "\(major)-\(minor)".
+    /// Using CLBeacon.uuid here would give every beacon the same id (shared app-level UUID),
+    /// causing ForEach to collapse all rows to one.
+    let id: String
     let major: UInt16
     let minor: UInt16
     let proximity: CLProximity
     let accuracy: Double
     let rssi: Int
+
+    init(major: UInt16, minor: UInt16, proximity: CLProximity, accuracy: Double, rssi: Int) {
+        self.id = "\(major)-\(minor)"
+        self.major = major
+        self.minor = minor
+        self.proximity = proximity
+        self.accuracy = accuracy
+        self.rssi = rssi
+    }
 
     var proximityLabel: String {
         switch proximity {
@@ -23,12 +35,13 @@ struct RawBeaconResult: Identifiable {
 }
 
 struct NearbyBLEDevice: Identifiable {
-    let id: String // device ID e.g. "C01U"
+    let id: String          // MAC address e.g. "AA:BB:CC:DD:EE:FF"
     let rssi: Int
+    let batteryLevel: Int?  // 0–100, nil if frame could not be parsed
 }
 
 /// Dual-channel beacon diagnostic: CoreLocation iBeacon ranging + CoreBluetooth BLE scan.
-/// Used to discover real major/minor values from Kontakt Anchor Beacons before a ride.
+/// Used to verify beacon major/minor assignments and signal strength before a ride.
 @MainActor
 @Observable
 final class BeaconDiagnosticService: NSObject {
@@ -41,7 +54,6 @@ final class BeaconDiagnosticService: NSObject {
 #if !targetEnvironment(simulator)
     private let locationManager = CLLocationManager()
     private var centralManager: CBCentralManager?
-    private let kontaktUUID = UUID(uuidString: "F7826DA6-4FA2-4E98-8024-BC5B71E0893E")!
     private var beaconConstraint: CLBeaconIdentityConstraint?
 
     override init() {
@@ -79,16 +91,16 @@ final class BeaconDiagnosticService: NSObject {
     }
 
     private func startRanging() {
-        let constraint = CLBeaconIdentityConstraint(uuid: kontaktUUID)
+        let constraint = CLBeaconIdentityConstraint(uuid: ArenaConfiguration.beaconProximityUUID)
         beaconConstraint = constraint
         locationManager.startRangingBeacons(satisfying: constraint)
-        print("[Diagnostic] iBeacon ranging started, UUID: \(kontaktUUID)")
+        print("[Diagnostic] iBeacon ranging started, UUID: \(ArenaConfiguration.beaconProximityUUID)")
     }
 
     private func startBLEScan() {
-        let serviceUUID = CBUUID(string: "FE6A") // Kontakt-specific service
+        let serviceUUID = CBUUID(string: "FFE1") // Minew Device Info frame
         centralManager?.scanForPeripherals(withServices: [serviceUUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
-        print("[Diagnostic] BLE scan started for FE6A service")
+        print("[Diagnostic] BLE scan started for FFE1 service")
     }
 
 #else
@@ -131,7 +143,6 @@ extension BeaconDiagnosticService: @preconcurrency CLLocationManagerDelegate {
     ) {
         rawBeacons = beacons.map { beacon in
             RawBeaconResult(
-                id: beacon.uuid,
                 major: beacon.major.uint16Value,
                 minor: beacon.minor.uint16Value,
                 proximity: beacon.proximity,
@@ -157,22 +168,29 @@ extension BeaconDiagnosticService: @preconcurrency CBCentralManagerDelegate {
         advertisementData: [String: Any],
         rssi RSSI: NSNumber
     ) {
-        // Parse device ID from Kontakt service data (bytes 6–9, ASCII)
+        // Parse Minew Device Info frame (FFE1 service).
+        // CoreBluetooth strips the leading UUID bytes; payload layout:
+        //   byte 0: frame type (0xA1)
+        //   byte 1: version
+        //   byte 2: battery level (0–100)
+        //   bytes 3–8: MAC address (6 bytes, little-endian)
+        //   bytes 9+: device name (ASCII)
         guard
             let serviceData = advertisementData[CBAdvertisementDataServiceDataKey] as? [CBUUID: Data],
-            let data = serviceData[CBUUID(string: "FE6A")],
-            data.count >= 10
+            let data = serviceData[CBUUID(string: "FFE1")],
+            data.count >= 9,
+            data[0] == 0xA1
         else { return }
 
-        let idBytes = data[6..<10]
-        guard let deviceID = String(bytes: idBytes, encoding: .ascii),
-              deviceID.unicodeScalars.allSatisfy({ $0.isASCII && $0.value >= 32 }) else { return }
+        let batteryLevel = Int(data[2])
+        let macBytes = data[3..<9]
+        let macAddress = macBytes.reversed().map { String(format: "%02X", $0) }.joined(separator: ":")
 
         let rssi = RSSI.intValue
-        if let idx = bleDevices.firstIndex(where: { $0.id == deviceID }) {
-            bleDevices[idx] = NearbyBLEDevice(id: deviceID, rssi: rssi)
+        if let idx = bleDevices.firstIndex(where: { $0.id == macAddress }) {
+            bleDevices[idx] = NearbyBLEDevice(id: macAddress, rssi: rssi, batteryLevel: batteryLevel)
         } else {
-            bleDevices.append(NearbyBLEDevice(id: deviceID, rssi: rssi))
+            bleDevices.append(NearbyBLEDevice(id: macAddress, rssi: rssi, batteryLevel: batteryLevel))
             bleDevices.sort { $0.id < $1.id }
         }
     }

@@ -85,7 +85,7 @@ struct BeaconDiagnosticView: View {
     }
 
     private var bleSection: some View {
-        Section("BLE Devices (FE6A)") {
+        Section("BLE Devices (Minew Info)") {
             if service.bleDevices.isEmpty {
                 Text(service.isRunning ? "Scanning…" : "Not started")
                     .foregroundStyle(.secondary)
@@ -95,10 +95,24 @@ struct BeaconDiagnosticView: View {
                         Text(device.id)
                             .font(.system(.body, design: .monospaced))
                         Spacer()
-                        Label("\(device.rssi) dBm", systemImage: "antenna.radiowaves.left.and.right")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Label("\(device.rssi) dBm", systemImage: "antenna.radiowaves.left.and.right")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            if let battery = device.batteryLevel {
+                                Label("\(battery)%", systemImage: "battery.100")
+                                    .font(.caption)
+                                    .foregroundStyle(battery > 20 ? .secondary : .red)
+                                    .accessibilityLabel("Battery \(battery) percent")
+                            }
+                        }
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel({
+                        var label = "Device \(device.id), \(device.rssi) dBm"
+                        if let battery = device.batteryLevel { label += ", battery \(battery) percent" }
+                        return label
+                    }())
                 }
             }
         }

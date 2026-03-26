@@ -38,18 +38,21 @@ struct ArenaConfiguration: Sendable {
         beaconMappings.first { $0.major == major && $0.minor == minor }?.letter
     }
 
-    /// Default prototype configuration: 4 beacons at A, E, C, B in a 20×60m arena.
-    // Placeholder major/minor values — update after running Beacon Diagnostic
+    // MARK: - App UUID
+
+    /// Fixed iBeacon proximity UUID pre-programmed into all Dressage Caller hardware.
+    /// Every beacon sold with the app uses this UUID — users never need to configure it.
+    static let beaconProximityUUID = UUID(uuidString: "74648DDD-D39B-4263-9DE5-4D18C8CF4D83")!
+
+    /// Default configuration: 8 beacons at A, K, E, H, C, M, B, F in a 20×60m arena.
     static let prototype = ArenaConfiguration(
-        beaconUUID: UUID(uuidString: "F7826DA6-4FA2-4E98-8024-BC5B71E0893E")!, // Kontakt factory default
+        beaconUUID: beaconProximityUUID,
         arenaSize: .standard,
         beaconMappings: [
-            // Kontakt hardware
             BeaconMapping(letter: .H, major: 1, minor: 0),
             BeaconMapping(letter: .M, major: 1, minor: 1),
             BeaconMapping(letter: .K, major: 1, minor: 2),
             BeaconMapping(letter: .F, major: 1, minor: 3),
-            // ESP32 devices
             BeaconMapping(letter: .A, major: 1, minor: 4),
             BeaconMapping(letter: .E, major: 1, minor: 5),
             BeaconMapping(letter: .C, major: 1, minor: 6),

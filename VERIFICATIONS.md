@@ -15,20 +15,20 @@
 
 ## Sprint 3 — Competition Day UX
 > Code-complete 2026-03-10. Items below are field-test pending — not yet verified on device in arena.
-- [ ] Competition mode → bell sounds → 30s/15s spoken → rider enters at A → first call triggers
-- [ ] Practice mode → no bell → halt for 6s → calling pauses → resume → picks up same movement
-- [ ] Move slider to Earlier → movement called noticeably before letter vs centre position
-- [ ] Slider position restored after relaunch
-- [ ] Preview Movements shows all 17 movements with correct text and gait badges
-- [ ] Device vibrates briefly at each movement trigger
+- [+] Competition mode → bell sounds → 30s/15s spoken → rider enters at A → first call triggers
+- [+] Practice mode → no bell → halt for 6s → calling pauses → resume → picks up same movement
+- [-] Move slider to Earlier → movement called noticeably before letter vs centre position
+- [+] Slider position restored after relaunch
+- [+] Preview Movements shows all 17 movements with correct text and gait badges
+- [-] Device vibrates briefly at each movement trigger
 
 ## Sprint 4 — RF Positioning & 8 Beacons
-- [ ] Stand 1m from each beacon → RSSI within 2–3dB across all 8 beacons
-- [ ] Walk arena end-to-end → centroid tracks position without collapsing to centreline
-- [ ] E beacon runs full 10-min ride without dropout
-- [ ] Fingerprint calibration: complete walk of all 12 letters, zones save successfully
-- [ ] Field ride: nearest-letter detection correct ≥80% of time
-- [ ] 8-beacon layout: confidence "strong" for ≥60% of readings
+- [+] Stand 1m from each beacon → RSSI within 2–3dB across all 8 beacons
+- [-] Walk arena end-to-end → centroid tracks position without collapsing to centreline
+- [+] E beacon runs full 10-min ride without dropout
+- [-] Fingerprint calibration: complete walk of all 12 letters, zones save successfully
+- [-] Field ride: nearest-letter detection correct ≥80% of time
+- [-] 8-beacon layout: confidence "strong" for ≥60% of readings
 
 ## Sprint 5 — Home Screen and Profiles
 - [ ] Two arena profiles with different calibrations — switching retains each calibration independently
